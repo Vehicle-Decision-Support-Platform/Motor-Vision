@@ -3,5 +3,5 @@ AI-powered vehicle market intelligence and decision support platform for Sri Lan
 
 
 <p align="center">
-  <img src="assets/PHOTO-2026-09-02-01-38-22.jpg" alt="Motor Vision" width="700">
+  <img src="PHOTO-2026-09-02-01-38-22.jpg" alt="Motor Vision" width="700">
 </p>
