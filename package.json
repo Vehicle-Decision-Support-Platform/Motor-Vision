@@ -1,0 +1,1 @@
+{"name":"motor-vision","version":"1.0.0","private":true,"scripts":{"dev":"node server.js","start":"node server.js","check":"node --check app.js && node --check server.js && node --check risk-engine.js && node --check risk-data.js && node --check risk-ui.js","test":"node smoke-test.cjs"}}
