@@ -48,8 +48,22 @@ assert.equal(risk.assess({...samples[0],location:'Galle',sellerType:'Dealer'}).s
 const hidden=risk.assess({...samples[0],phone:'0771234567',sellerName:'Example Person'});
 assert(!JSON.stringify(hidden).includes('0771234567'));
 assert(!JSON.stringify(hidden).includes('Example Person'));
-assert.equal(hidden.modelVersion,'rules-0.2.0');
+assert.equal(hidden.modelVersion,'rules-0.3.0');
 assert.equal(hidden.datasetVersion,'synthetic-listings-v1');
+for(const fairValue of [undefined,null,'','   ']){
+  const partial=risk.assess({...samples[0],fairValue,priceStd:1000000});
+  assert.equal(partial.assessmentStatus,'partial');
+  assert.equal(partial.features.priceDeviation,null);
+  assert.equal(partial.features.priceZ,null);
+  assert.equal(partial.reasons.find(x=>x.feature==='priceDeviation').status,'not_assessed');
+  assert(!partial.reasons.some(x=>x.title==='Price is near its reference'));
+  assert.deepEqual(partial.scoreRange,{min:partial.score,max:Math.min(100,partial.score+25)});
+  assert.equal(JSON.parse(JSON.stringify(partial)).features.priceDeviation,null);
+  const evaluation=risk.evaluate([{label:'ordinary',result:partial}]);
+  assert.equal(evaluation.sampleSize,0);assert.equal(evaluation.excludedPartial,1);
+}
+for(const invalid of [0,-1,NaN,Infinity,'8000000'])assert.throws(()=>risk.assess({...samples[0],fairValue:invalid}),/fairValue/);
+const full=risk.assess(samples[0]);assert.equal(full.assessmentStatus,'complete');assert.deepEqual(full.scoreRange,{min:full.score,max:full.score});
 const metrics=risk.evaluate(samples.map(listing=>({label:listing.label,result:risk.assess(listing)})));
 assert.deepEqual([metrics.tp,metrics.fp,metrics.tn,metrics.fn],[2,1,3,0]);
 assert.equal(metrics.precision,2/3);
@@ -103,4 +117,7 @@ assert.equal(uiContext.RiskUI.getResults().length,2);
 const entries=JSON.parse(storage.get('mv-risk-history'));
 assert(entries[0].result.datasetVersion.startsWith('manual-'));
 assert(!Object.hasOwn(entries[0],'description'));
+const noReference={...samples[0]};delete noReference.fairValue;
+assert.equal(uiContext.RiskUI.importRecords(JSON.stringify(noReference)),1);
+assert.equal(uiContext.RiskUI.getResults()[0].assessmentStatus,'partial');
 console.log('PASS: all routes, atomic JSON import, version handoff, escaping, local history and manual-assessment submission');

@@ -1,0 +1,29 @@
+.listing-link-form{margin:20px 0 22px;padding:18px;background:#f0f8f7;border:1px solid #d7e9e5;border-radius:12px;text-align:left}
+.link-form-heading{display:flex;gap:10px;align-items:flex-start;margin-bottom:17px}
+.link-form-heading>span{display:grid;place-items:center;width:30px;height:30px;flex-shrink:0;background:#dceee9;border-radius:9px;color:#087c80;font-size:21px}
+.link-form-heading h3{font-size:14px;margin:0 0 4px;color:#173544}
+.link-form-heading p,.link-form-help{font-size:12px!important;line-height:1.7!important;margin:0!important;color:#677d87!important}
+.listing-link-form label{display:block;font-size:12px;font-weight:600;color:#36535e;margin-bottom:7px}
+.listing-link-form input{box-sizing:border-box;width:100%;min-width:0;border:1px solid #c9dcd9;border-radius:7px;background:#fff;padding:11px 10px;font:12px 'DM Sans',Arial;color:#183344}
+.listing-link-form input:focus{outline:2px solid #087d80;outline-offset:2px}
+.listing-link-form>.primary{display:flex;align-items:center;justify-content:space-between;width:100%;margin:10px 0;font-size:13px;padding:11px 13px}
+.listing-link-form button:disabled{opacity:.65;cursor:wait}
+.link-form-help{margin-top:9px!important}
+.link-progress{font-size:12px!important;color:#087d80!important;line-height:1.7!important}
+.listing-link-form .form-error{padding:10px;font-size:12px;overflow-wrap:anywhere}
+.link-review{border:1px solid #d7e9e5;background:#f0f8f7;border-radius:14px;padding:22px 25px;margin-bottom:22px}
+.link-review-top{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;flex-wrap:wrap}
+.link-review h2{font-size:18px;margin:7px 0;color:#173544}
+.link-review a,.import-source a{color:#087d80;text-underline-offset:3px;font-weight:600}
+.link-review ul{padding-left:20px;margin:12px 0 0;color:#586e79;font-size:13px;line-height:1.8}
+.link-review p{color:#586e79;font-size:13px;line-height:1.7;margin:7px 0}
+.field.needs-review input{border-color:#bc8a35;background:#fffcf2}
+.field.needs-review>small.review-hint{color:#926a21;font-size:11px}
+.import-source{font-size:12px;margin:0 0 18px;line-height:1.7;color:#627a84}
+.risk-badge.partial{background:#f6f1e6;color:#836c35}
+.partial-assessment{background:#faf7ee;border:1px solid #e8dfc6;border-radius:9px;padding:14px 16px;margin-bottom:20px;color:#7a6438;font-size:12px;line-height:1.8}
+.partial-assessment strong{display:block;font-size:13px}
+.partial-assessment p{margin:5px 0 0;font-size:12px;line-height:1.8}
+.reason.unassessed .reason-symbol{background:#f0f2f4;color:#7a8790}
+.reason.unassessed .reason-points{color:#7a8790}
+@media(max-width:600px){.listing-link-form{padding:14px}.link-review{padding:18px}.link-review h2{font-size:16px}}

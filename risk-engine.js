@@ -1,7 +1,7 @@
 /* Deterministic frontend baseline. These are prototype rules, not a trained model. */
 (function (root) {
   'use strict';
-  const MODEL_VERSION = 'rules-0.2.0';
+  const MODEL_VERSION = 'rules-0.3.0';
   const CONFIG = Object.freeze({medium: 30, high: 60, currentYear: 2026});
   const required = ['make','model','year','mileage','price','fuel','transmission','engine','location','sellerType','description'];
   const present = value => value !== null && value !== undefined && String(value).trim() !== '';
@@ -9,7 +9,7 @@
     const errors = [];
     if (!listing || typeof listing !== 'object' || Array.isArray(listing)) return ['Each listing must be a JSON object.'];
     for (const key of ['make','model']) if (!present(listing[key]) || typeof listing[key] !== 'string') errors.push(`${key} is required.`);
-    for (const key of ['price','fairValue']) if (typeof listing[key] !== 'number' || !Number.isFinite(listing[key]) || listing[key] <= 0 || listing[key] > 1e9) errors.push(`${key} must be a number between 1 and 1,000,000,000.`);
+    for (const key of ['price','fairValue']) if ((key==='price'||present(listing[key])) && (typeof listing[key] !== 'number' || !Number.isFinite(listing[key]) || listing[key] <= 0 || listing[key] > 1e9)) errors.push(`${key} must be a number between 1 and 1,000,000,000.`);
     if (!Number.isInteger(listing.year) || listing.year < 1980 || listing.year > CONFIG.currentYear) errors.push(`year must be between 1980 and ${CONFIG.currentYear}.`);
     if (typeof listing.mileage !== 'number' || !Number.isFinite(listing.mileage) || listing.mileage < 0 || listing.mileage > 2e6) errors.push('mileage must be between 0 and 2,000,000 km.');
     for (const key of ['photoCount','listingAgeDays']) if (present(listing[key]) && (!Number.isInteger(listing[key]) || listing[key] < 0 || listing[key] > 100000)) errors.push(`${key} must be a non-negative integer.`);
@@ -24,7 +24,8 @@
     if (errors.length) throw new Error(errors.join(' '));
     const started = typeof performance !== 'undefined' ? performance.now() : Date.now();
     const age = Math.max(1, CONFIG.currentYear - listing.year);
-    const deviation = (listing.price - listing.fairValue) / listing.fairValue;
+    const hasPriceReference = present(listing.fairValue);
+    const deviation = hasPriceReference ? (listing.price - listing.fairValue) / listing.fairValue : null;
     const perYear = listing.mileage / age;
     const completeness = required.filter(key => present(listing[key])).length / required.length;
     const text = String(listing.description || '').toLowerCase();
@@ -33,8 +34,9 @@
     if (/\b(no (?:book|documents|papers)|(?:book|documents|papers) (?:missing|lost|unavailable)|without (?:book|documents|papers))\b/i.test(text)) textFlags.push('Missing-document wording');
     if (/\b(deposit first|advance payment|pay before viewing|off[- ]platform|telegram only|whatsapp only)\b/i.test(text)) textFlags.push('Payment / off-platform cue');
     const reasons = [];
-    const add = (feature,points,title,detail,action) => reasons.push({feature,points,title,detail,action});
-    if (Math.abs(deviation) > .15) add('priceDeviation',Math.abs(deviation) > .35 ? 25 : 15,'Price differs from its reference',`The asking price is ${(Math.abs(deviation)*100).toFixed(1)}% ${deviation < 0 ? 'below' : 'above'} the supplied cohort fair value. A low price alone does not establish risk.`,'Verify condition and compare similar listings.');
+    const add = (feature,points,title,detail,action,status='assessed') => reasons.push({feature,points,title,detail,action,status});
+    if (!hasPriceReference) add('priceDeviation',0,'Price comparison not assessed','No independent fair-value reference was supplied. The price rule has been skipped; this is not evidence that the asking price is fair.','Add a fair-value reference for the same model, year and condition, then assess again.','not_assessed');
+    else if (Math.abs(deviation) > .15) add('priceDeviation',Math.abs(deviation) > .35 ? 25 : 15,'Price differs from its reference',`The asking price is ${(Math.abs(deviation)*100).toFixed(1)}% ${deviation < 0 ? 'below' : 'above'} the supplied cohort fair value. A low price alone does not establish risk.`,'Verify condition and compare similar listings.');
     else add('priceDeviation',0,'Price is near its reference','The asking price is within 15% of the supplied fair value.','Confirm the reference reflects the same model, year and condition.');
     if (perYear < 2500 && age >= 4) add('mileagePerYear',15,'Unusually low annual mileage',`${Math.round(perYear).toLocaleString()} km/year is below the demo threshold for a vehicle of this age.`,'Check service records and odometer history.');
     else if (perYear > 35000) add('mileagePerYear',15,'High annual mileage',`${Math.round(perYear).toLocaleString()} km/year exceeds the demo threshold.`,'Arrange an independent mechanical inspection.');
@@ -53,23 +55,28 @@
     return {
       listingId: present(listing.id) ? String(listing.id).slice(0,100) : 'manual-listing',
       score, category, scoreType:'uncalibrated_rule_points', mode:'rule_based_baseline', modelVersion:MODEL_VERSION,
-      datasetVersion:listing.datasetVersion || 'manual-unversioned', preprocessingVersion:'features-0.2.0',
+      assessmentStatus:hasPriceReference?'complete':'partial',
+      categoryScope:hasPriceReference?'all_baseline_rules':'observed_signals_only',
+      unassessedFeatures:hasPriceReference?[]:['priceDeviation'],
+      scoreRange:{min:score,max:Math.min(100,score+(hasPriceReference?0:25))},
+      datasetVersion:listing.datasetVersion || 'manual-unversioned', preprocessingVersion:'features-0.3.0',
       assessedAt:now.toISOString(),latencyMs:Math.round(elapsed*100)/100,
-      features:{priceDeviation:deviation,mileagePerYear:perYear,vehicleAge:age,priceZ:listing.priceStd?(listing.price-listing.fairValue)/listing.priceStd:null,mileageZ:listing.cohortMileageMean&&listing.cohortMileageStd?(listing.mileage-listing.cohortMileageMean)/listing.cohortMileageStd:null,completeness,photoCount:listing.photoCount??null,listingAgeDays:listing.listingAgeDays??null,textFlags},
+      features:{priceDeviation:deviation,mileagePerYear:perYear,vehicleAge:age,priceZ:hasPriceReference&&listing.priceStd?(listing.price-listing.fairValue)/listing.priceStd:null,mileageZ:listing.cohortMileageMean&&listing.cohortMileageStd?(listing.mileage-listing.cohortMileageMean)/listing.cohortMileageStd:null,completeness,photoCount:listing.photoCount??null,listingAgeDays:listing.listingAgeDays??null,textFlags},
       reasons:reasons.sort((a,b)=>b.points-a.points),
       thresholds:{medium:CONFIG.medium,high:CONFIG.high},
-      limitations:['Prototype rule points, not a calibrated probability or trained AI prediction.','Description matches can be false alarms; seller statements are unverified.','Location and seller-type values are not risk predictors; missing fields affect completeness.','No SHAP, LIME, live scraping or vehicle inspection has been performed.']
+      limitations:['Prototype rule points, not a calibrated probability or trained AI prediction.','Description matches can be false alarms; seller statements are unverified.','Location and seller-type values are not risk predictors; missing fields affect completeness.','No SHAP, LIME or vehicle inspection has been performed.',...(hasPriceReference?[]:['Partial assessment: price comparison was not assessed. Score and category cover observed signals only; the price rule could add up to 25 points.'])]
     };
   }
   function evaluate(pairs) {
-    let tp=0,fp=0,tn=0,fn=0;
+    let tp=0,fp=0,tn=0,fn=0,excludedPartial=0;
     for (const pair of pairs) {
+      if(pair.result.assessmentStatus==='partial'){if(['ordinary','risky'].includes(pair.label))excludedPartial++;continue;}
       const positive=pair.result.category!=='LOW';
       if (pair.label === 'risky') { if(positive) tp++; else fn++; }
       if (pair.label === 'ordinary') { if(positive) fp++; else tn++; }
     }
     const ratio=(a,b)=>b?a/b:null;
-    return {tp,fp,tn,fn,precision:ratio(tp,tp+fp),recall:ratio(tp,tp+fn),falsePositiveRate:ratio(fp,fp+tn),missedRiskRate:ratio(fn,tp+fn),sampleSize:tp+fp+tn+fn};
+    return {tp,fp,tn,fn,precision:ratio(tp,tp+fp),recall:ratio(tp,tp+fn),falsePositiveRate:ratio(fp,fp+tn),missedRiskRate:ratio(fn,tp+fn),sampleSize:tp+fp+tn+fn,excludedPartial};
   }
   const api={assess,validate,evaluate,MODEL_VERSION,CONFIG};
   if (typeof module !== 'undefined' && module.exports) module.exports=api;
