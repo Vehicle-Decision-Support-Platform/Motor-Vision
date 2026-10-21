@@ -3,7 +3,7 @@ const http = require('node:http');
 const fs = require('node:fs');
 const path = require('node:path');
 const {previewListing,ListingError} = require('./listing-import');
-const publicFiles=new Set(['index.html','style.css','risk.css','app.js','risk-engine.js','risk-data.js','risk-ui.js','listing-link-ui.js','listing-link.css']);
+const publicFiles=new Set(['index.html','style.css','risk.css','app.js','risk-engine.js','risk-data.js','risk-ui.js','listing-link-ui.js','listing-link.css','valuation-ui.js','price-engine.js','valuation.css']);
 function json(res,status,value){res.writeHead(status,{'Content-Type':'application/json; charset=utf-8'});res.end(JSON.stringify(value));}
 function readBody(req){return new Promise((resolve,reject)=>{
   let size=0,text='';req.on('data',chunk=>{size+=chunk.length;if(size>4096){reject(new ListingError('Request is too large.',413));return;}text+=chunk;});
@@ -40,6 +40,6 @@ function createServer({preview=previewListing}={}){
   });
 }
 const server=createServer();
-if(require.main===module)server.listen(Number(process.env.PORT||3000),'127.0.0.1',()=>console.log(`Motor Vision: http://localhost:${server.address().port}/?v=risk-link-2#risk`));
+if(require.main===module)server.listen(Number(process.env.PORT||3000),'127.0.0.1',()=>console.log(`Motor Vision: http://localhost:${server.address().port}/?v=price-proposal-1#risk`));
 module.exports=server;
 module.exports.createServer=createServer;

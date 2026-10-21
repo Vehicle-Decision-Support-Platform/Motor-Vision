@@ -88,7 +88,7 @@ const uiContext={
 };
 uiContext.window=uiContext;
 vm.createContext(uiContext);
-for(const filename of ['risk-engine.js','risk-data.js','risk-ui.js','app.js'])vm.runInContext(fs.readFileSync(__dirname+'/'+filename,'utf8'),uiContext);
+for(const filename of ['risk-engine.js','risk-data.js','listing-link-ui.js','risk-ui.js','price-engine.js','valuation-ui.js','app.js'])vm.runInContext(fs.readFileSync(__dirname+'/'+filename,'utf8'),uiContext);
 assert.equal(uiElement('breadcrumb').textContent,'Risk dashboard');
 assert(uiElement('risk-report-host').innerHTML.includes('Exact rule contributions'));
 assert(uiElement('risk-report-host').innerHTML.includes('HIGH RISK'));

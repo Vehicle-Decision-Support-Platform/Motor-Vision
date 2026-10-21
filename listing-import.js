@@ -80,7 +80,7 @@ function parseIkman(html) {
       throw new ListingError('Use a vehicle advertisement, rather than a listing in another category.');
     if(ad.type&&ad.type!=='for_sale')throw new ListingError('Use a vehicle for-sale advertisement.');
     const props=Object.fromEntries(ad.properties.filter(p=>p&&typeof p.key==='string').map(p=>[p.key,p.value]));
-    const listing={make:text(props.brand),model:text(props.model),year:number(props.model_year),mileage:number(props.mileage),price:number(ad.money?.amount),fuel:text(props.fuel_type),transmission:text(props.transmission),engine:text(props.engine_capacity),location:[ad.location?.name,ad.area?.name].filter(Boolean).map(text).join(', '),description:description(ad.description)};
+    const listing={make:text(props.brand),model:text(props.model),year:number(props.model_year),mileage:number(props.mileage),price:number(ad.money?.amount),fuel:text(props.fuel_type),transmission:text(props.transmission),engine:text(props.engine_capacity),condition:text(props.condition),bodyType:text(props.body),location:[ad.location?.name,ad.area?.name].filter(Boolean).map(text).join(', '),description:description(ad.description)};
     if(Array.isArray(ad.images?.meta))listing.photoCount=ad.images.meta.filter(x=>x?.src).length;
     // Membership or a verified badge alone does not establish dealer status.
     if(ad.isAuthDealer===true)listing.sellerType='Dealer';
@@ -89,7 +89,7 @@ function parseIkman(html) {
   throw new ListingError('This Ikman page did not expose readable vehicle details. Open the advertisement and enter the details manually.');
 }
 function parseRiyasewana(html) {
-  const fields={},labels={make:'make',model:'model',yom:'year','mileage(km)':'mileage',gear:'transmission','fueltype':'fuel','engine(cc)':'engine',price:'price',details:'description'};
+  const fields={},labels={make:'make',model:'model',yom:'year','mileage(km)':'mileage',gear:'transmission','fueltype':'fuel','engine(cc)':'engine',condition:'condition',bodytype:'bodyType',price:'price',details:'description'};
   // Vehicle facts are published in labeled table cells; contact cells are never copied.
   for(const row of html.matchAll(/<tr\b[^>]*>([\s\S]*?)<\/tr>/gi)){
     const cells=[...row[1].matchAll(/<t[dh]\b[^>]*>([\s\S]*?)<\/t[dh]>/gi)].map(m=>text(m[1]));
@@ -107,7 +107,7 @@ function parseListing(html, value, now=new Date()) {
   const parsed=source==='Ikman'?parseIkman(html):parseRiyasewana(html);
   const listing=Object.fromEntries(Object.entries(parsed.listing).filter(([,v])=>v!==undefined&&v!==''));
   for(const key of ['make','model'])if(typeof listing[key]==='string')listing[key]=listing[key].slice(0,100);
-  for(const key of ['engine','location','fuel','transmission','sellerType'])if(typeof listing[key]==='string')listing[key]=listing[key].slice(0,150);
+  for(const key of ['engine','location','fuel','transmission','condition','bodyType','sellerType'])if(typeof listing[key]==='string')listing[key]=listing[key].slice(0,150);
   if(parsed.publishedAt&&/^\d{4}-\d{2}-\d{2}T/.test(parsed.publishedAt)){
     const age=(now-new Date(parsed.publishedAt))/86400000;if(Number.isFinite(age)&&age>=0)listing.listingAgeDays=Math.floor(age);
   }
