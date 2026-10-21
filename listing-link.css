@@ -26,4 +26,16 @@
 .partial-assessment p{margin:5px 0 0;font-size:12px;line-height:1.8}
 .reason.unassessed .reason-symbol{background:#f0f2f4;color:#7a8790}
 .reason.unassessed .reason-points{color:#7a8790}
+.valuation-link-form{margin:0 0 24px;padding:22px 25px}
+.valuation-heading{gap:16px;flex-wrap:wrap;align-items:center}
+.listing-link-entry{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center}
+.listing-link-entry .primary{white-space:nowrap;min-height:41px}
+.valuation-link-form .link-form-help{margin-top:12px!important}
+.valuation-facts{display:flex;flex-wrap:wrap;gap:15px 32px;margin:17px 0}
+.valuation-facts dt{font-size:10px;color:#71868e;margin-bottom:5px}
+.valuation-facts dd{margin:0;font-size:13px;color:#254d58;overflow-wrap:anywhere}
+.valuation-reference-note,.valuation-unavailable{background:#faf7ee;border:1px solid #e8dfc6;border-radius:7px;padding:12px 14px;color:#7a6438;font-size:12px;line-height:1.8}
+#valuation-form select:disabled{opacity:1;background:#f3f6f7;color:#526975}
+#valuation-form .primary:disabled{opacity:.55;cursor:not-allowed}
+@media(max-width:600px){.listing-link-entry{grid-template-columns:1fr}.valuation-link-form{padding:18px}.listing-link-entry .primary{width:100%;text-align:center}}
 @media(max-width:600px){.listing-link-form{padding:14px}.link-review{padding:18px}.link-review h2{font-size:16px}}

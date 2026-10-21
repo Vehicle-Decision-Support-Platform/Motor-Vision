@@ -14,6 +14,8 @@ Open http://localhost:3000. Run `npm run check` for JavaScript syntax validation
 
 Both `npm run dev` and `npm start` also work from the outer workspace folder. Run `npm test` for the risk-engine and frontend smoke tests. No npm dependencies are required.
 
+Use `npm run dev` during development: Node watch mode restarts the server when its code or imported backend modules change. Static HTML/CSS/JS is read on each request. `npm start` runs without watching. A server started before this change needs one restart to enable watch mode.
+
 ## Individual component: IT23380400
 
 The default screen now implements the **Explainable AI-Based Vehicle Risk Assessment** component described in `IT23380400.pdf`, especially sections 3.3, 4.2 and 5.1. Other platform tools remain accessible from the second navigation group.
@@ -35,7 +37,36 @@ The asking price is never substituted for fair value. Mileage is read from the l
 
 After updating this feature, stop the old server with **Ctrl+C** and run **npm run dev** again, then refresh the browser. No dependencies or trained model are required. Tests include offline parsing fixtures, guarded URL fetching, API behavior and the import/review/assessment flow; they do not depend on live ads remaining online.
 
-## Requirement implementation
+## Price component: IT23225138
+
+The Price evaluation page follows the individual proposal's FR1-FR8 and Figures 1-3: vehicle input, independent fair-value reference, seller-price comparison, classification and buyer recommendation, with comparison of XGBoost, Random Forest and LightGBM.
+
+Paste a supported advertisement URL and select **Fetch ad details**, or enter a vehicle manually. Inputs include make, model, year, mileage, fuel, transmission, engine capacity, body type, condition, location and seller price. Imported values remain editable. Ad labels such as Reconditioned are preserved as claims and are not converted to verified physical condition. Missing attributes are not invented. Make/model fields accept any vehicle; only demo mode is limited to the six synthetic reference models. A sample can be loaded explicitly.
+
+The result shows the seller's price, fair-value reference, signed LKR difference, percentage difference, Underpriced / Fairly priced / Overpriced category and buyer recommendation. Difference is `sellerPrice - fairValue`; percentage is that difference divided by fair value. The tolerance is configurable from 0% to 50%, with inclusive fair-band boundaries. The default demo tolerance is 5% and is clearly marked unvalidated. The band is a classification tolerance, not a prediction/confidence interval. Changing inputs invalidates the displayed result.
+
+Two price sources are kept distinct:
+
+- **Demo formula:** synthetic reference prices adjusted for year, mileage and selected condition. Unrecognized/unsupplied condition labels use an explicitly neutral factor. Other vehicle attributes are recorded for model integration but do not change the demo estimate. No trained-model result or current market value is claimed. Demo results cannot be exported as a shared operational fair-value reference.
+- **Supplied model outputs:** import actual external predictions and validation metrics in **Model comparison**. The interface does not train models or run their inference. It validates and compares a supplied report, then uses its selected model's vehicle-specific prediction. Metrics and split quality remain externally supplied claims, not independently verified research results.
+
+The model view lists all three regressors with R², RMSE, MAE, prediction, model version and selection status. Values remain unavailable until a report is supplied. Selection uses lowest validation RMSE, then lower MAE, then higher R²; exact ties use model ID and are disclosed. Hold-out test metrics are not used for selection. This task implements the frontend only. Model training, dataset preparation and live prediction services are outside its scope.
+
+### Model-results contract
+
+An optional, collapsed browser-only import is available in Model comparison for previewing saved results. Fill the current vehicle form and download its template. A completed `price-model-bundle-1` response requires:
+
+- LKR currency; vehicle features; dataset/preprocessing versions; validation split ID and sample size.
+- One XGBoost, Random Forest and LightGBM entry, each with an actual model version, finite R²/RMSE/MAE and a positive predicted price. RMSE must not be below MAE. Explicit per-model dataset/split metadata must match the common declaration.
+- A configurable classification threshold and supplied validation error-analysis evidence. Placeholder metadata is not accepted as completed research evidence.
+
+Reports are validated atomically. Predictions are bound to the current vehicle features; editing those features requires new predictions. Seller-price edits do not invalidate the independent prediction, since asking price is excluded from feature matching. Files stay local to the browser. Unknown seller/contact properties are not accepted as price features.
+
+`ValuationUI.getLatestResult()` returns an isolated snapshot using the `price-result-1` contract. JSON exports carry price comparison, classification, recommendation, threshold status/evidence, model/dataset/preprocessing versions and listing provenance. **Export shared listing** is enabled for supplied model outputs and includes a `fairValue` listing compatible with the existing risk JSON importer, plus the complete price result for recommendation/affordability consumers. No automatic lending decision or risk-adjusted advice is produced.
+
+`price-engine.js` implements the reusable contracts, validation, feature derivation, comparison and demo formula. `valuation-ui.js` / `valuation.css` implement the price interface. Tests cover threshold boundaries, asking-price independence, all three model results, selection, malformed reports, vehicle binding, privacy, live-ad import shape, rendering and export handoff.
+
+## Risk component requirement implementation
 
 - FR1: local JSON import accepts a single record, an array or `{ "datasetVersion": "...", "listings": [...] }`. Operational shared-data ingestion is a future backend connection.
 - FR2: computes price deviation, mileage/year, cohort price and mileage z-scores where statistics are supplied, completeness, photo count, listing age and description flags.
@@ -56,4 +87,4 @@ SHAP/LIME inference, calibrated models, explanation fidelity/stability, PR-AUC/r
 
 `risk-data.js` holds six synthetic fixtures, including a normal listing, multiple-signal high-risk examples, an ordinary listing incorrectly flagged by the baseline, and a relocation bargain. Prices and labels are invented demonstrations. Do not treat these fixtures as listings from Ikman, Riyasewana or Patpat.
 
-Source: `index.html`, `style.css`, `risk.css`, `app.js`, `risk-engine.js`, `risk-data.js`, `risk-ui.js`, `listing-link-ui.js`, `listing-link.css`, `listing-import.js`. `server.js` serves the local app and advertisement-preview API on loopback. SVG vehicle illustrations are original; Google Fonts have local fallbacks.
+Source: `index.html`, `style.css`, `risk.css`, `app.js`, `risk-engine.js`, `risk-data.js`, `risk-ui.js`, `listing-link-ui.js`, `listing-link.css`, `listing-import.js`, `price-engine.js`, `valuation-ui.js`, `valuation.css`. `server.js` serves the local app and advertisement-preview API on loopback. SVG vehicle illustrations are original; Google Fonts have local fallbacks.

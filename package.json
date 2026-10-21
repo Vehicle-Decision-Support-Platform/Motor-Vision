@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "node server.js",
+    "dev": "node --watch server.js",
     "start": "node server.js",
-    "check": "node --check app.js && node --check server.js && node --check risk-engine.js && node --check risk-data.js && node --check risk-ui.js && node --check listing-import.js && node --check listing-link-ui.js",
-    "test": "node smoke-test.cjs && node listing-import.test.cjs"
+    "check": "node --check app.js && node --check server.js && node --check risk-engine.js && node --check risk-data.js && node --check risk-ui.js && node --check listing-import.js && node --check listing-link-ui.js && node --check valuation-ui.js && node --check price-engine.js",
+    "test": "node smoke-test.cjs && node listing-import.test.cjs && node price-engine.test.cjs && node valuation-ui.test.cjs"
   }
 }
