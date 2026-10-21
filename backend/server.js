@@ -2,8 +2,14 @@
 const http = require('node:http');
 const fs = require('node:fs');
 const path = require('node:path');
-const {previewListing,ListingError} = require('./listing-import');
-const publicFiles=new Set(['index.html','style.css','risk.css','app.js','risk-engine.js','risk-data.js','risk-ui.js','listing-link-ui.js','listing-link.css','valuation-ui.js','price-engine.js','valuation.css']);
+const {previewListing,ListingError} = require('./services/listing-import');
+const frontendRoot=path.join(__dirname,'..','frontend');
+const publicFiles=new Set([
+  'index.html',
+  'css/style.css','css/risk.css','css/listing-link.css','css/valuation.css',
+  'js/app.js','js/risk-engine.js','js/risk-data.js','js/risk-ui.js',
+  'js/listing-link-ui.js','js/valuation-ui.js','js/price-engine.js'
+]);
 function json(res,status,value){res.writeHead(status,{'Content-Type':'application/json; charset=utf-8'});res.end(JSON.stringify(value));}
 function readBody(req){return new Promise((resolve,reject)=>{
   let size=0,text='';req.on('data',chunk=>{size+=chunk.length;if(size>4096){reject(new ListingError('Request is too large.',413));return;}text+=chunk;});
@@ -32,7 +38,7 @@ function createServer({preview=previewListing}={}){
     if(!['GET','HEAD'].includes(req.method)){res.writeHead(405);return res.end();}
     const name=pathname==='/'?'index.html':pathname.slice(1);
     if(!publicFiles.has(name)){res.writeHead(404);return res.end('Not found');}
-    fs.readFile(path.join(__dirname,name),(err,data)=>{
+    fs.readFile(path.join(frontendRoot,name),(err,data)=>{
       if(err){res.writeHead(404);return res.end('Not found');}
       res.setHeader('Content-Type',({'.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.js':'text/javascript; charset=utf-8'})[path.extname(name)]);
       res.end(req.method==='HEAD'?undefined:data);

@@ -1,0 +1,1 @@
+# Add pinned runtime dependencies when the real FastAPI inference service is implemented.
