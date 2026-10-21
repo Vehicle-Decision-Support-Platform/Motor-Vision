@@ -1,20 +1,72 @@
 # Motor-Vision
 AI-powered vehicle market intelligence and decision support platform for Sri Lanka's used-car market: price evaluation, feature recommendation, explainable risk assessment, and affordability insights.
 
+## Research components
+
+1. **Vehicle price evaluation** — compare a seller's asking price with an independent fair-value reference and explain the buyer-facing result.
+2. **Feature-based recommendation** — a future independently maintained recommendation and explainability component.
+3. **Used-vehicle risk assessment** — score transparent prototype risk signals and explain every contribution.
+4. **Affordability and investment recommendation** — a future independently maintained loan, leasing, affordability, and investment component.
+
+The current repository contains working browser prototypes for Components 1 and 3. Components 2 and 4, trained models, production data storage, and the Python inference service are intentionally not fabricated.
+
+## Project structure
+
+```text
+Motor-Vision/
+├── frontend/
+│   ├── index.html
+│   ├── css/                     # Existing styles, unchanged apart from paths
+│   ├── js/                      # Existing UI, browser engines, and fixtures
+│   ├── components/              # Component-specific expansion points
+│   └── assets/                  # Images and icons
+├── backend/
+│   ├── server.js                # Node HTTP/static server and API entry point
+│   ├── services/listing-import.js
+│   ├── routes/ controllers/ middleware/ config/ utils/
+├── ai-models/
+│   ├── component-1-price/{models,training}/
+│   ├── component-2-recommendation/{models,training}/
+│   ├── component-3-risk/{models,training}/
+│   └── component-4-affordability/{models,training}/
+├── ml-api/{routers,services,schemas}/
+├── datasets/{raw,processed}/
+├── tests/{frontend,backend,integration}/
+└── docs/
+```
+
+Directories reserved for future work are deliberately empty. No trained model, prediction, dataset, database, or placeholder endpoint is represented as implemented.
+
 
 ## Run the frontend
 
 Requires Node.js 20 or newer. No dependency installation is needed.
 
 ```sh
+npm install
 npm start
 ```
 
-Open http://localhost:3000. Run `npm run check` for JavaScript syntax validation.
+`npm install` is optional at present because the project has no external Node dependencies; it is included as the conventional setup step. Open http://localhost:3000. Run `npm run check` for JavaScript syntax validation.
 
 Both `npm run dev` and `npm start` also work from the outer workspace folder. Run `npm test` for the risk-engine and frontend smoke tests. No npm dependencies are required.
 
 Use `npm run dev` during development: Node watch mode restarts the server when its code or imported backend modules change. Static HTML/CSS/JS is read on each request. `npm start` runs without watching. A server started before this change needs one restart to enable watch mode.
+
+## Application boundaries and future ML integration
+
+The browser loads static files from `frontend/` and calls the Node backend with same-origin HTTP requests. `backend/server.js` currently serves those allow-listed files and owns `POST /api/listings/preview`; advertisement retrieval stays server-side so browser code never performs it directly.
+
+Future trained `.pkl` or `.joblib` artifacts belong in the corresponding `ai-models/component-*/models/` directory, with reproducible training code in its sibling `training/` directory. Raw and processed research data belong under `datasets/`; do not commit private, licensed, or oversized data without an explicit data-management decision.
+
+When inference is implemented, the intended request flow is:
+
+```text
+Browser frontend → Node REST API → Python FastAPI ML service → versioned model artifact
+                 ← validated JSON ← versioned prediction/explanation ←
+```
+
+The Node backend should remain the public application boundary and validate/authenticate requests. The future Python service should load component-specific artifacts, validate typed schemas, and return versioned predictions plus explanation metadata. Configure its internal URL with `ML_API_URL`; do not expose model files directly to the browser. `ml-api/main.py` and `ml-api/requirements.txt` are intentionally non-operational until a real inference contract and trained artifact exist.
 
 ## Individual component: IT23380400
 
@@ -64,7 +116,7 @@ Reports are validated atomically. Predictions are bound to the current vehicle f
 
 `ValuationUI.getLatestResult()` returns an isolated snapshot using the `price-result-1` contract. JSON exports carry price comparison, classification, recommendation, threshold status/evidence, model/dataset/preprocessing versions and listing provenance. **Export shared listing** is enabled for supplied model outputs and includes a `fairValue` listing compatible with the existing risk JSON importer, plus the complete price result for recommendation/affordability consumers. No automatic lending decision or risk-adjusted advice is produced.
 
-`price-engine.js` implements the reusable contracts, validation, feature derivation, comparison and demo formula. `valuation-ui.js` / `valuation.css` implement the price interface. Tests cover threshold boundaries, asking-price independence, all three model results, selection, malformed reports, vehicle binding, privacy, live-ad import shape, rendering and export handoff.
+`frontend/js/price-engine.js` implements the reusable contracts, validation, feature derivation, comparison and demo formula. `frontend/js/valuation-ui.js` / `frontend/css/valuation.css` implement the price interface. Tests cover threshold boundaries, asking-price independence, all three model results, selection, malformed reports, vehicle binding, privacy, live-ad import shape, rendering and export handoff.
 
 ## Risk component requirement implementation
 
@@ -77,7 +129,7 @@ Reports are validated atomically. Predictions are bound to the current vehicle f
 
 ## Baseline behavior and limits
 
-`risk-engine.js` contains the pure, testable prototype rules. Points are added and capped at 100: LOW is below 30, MEDIUM is 30-59 and HIGH is 60 or more. Price deviation alone contributes at most 25 points, so a low price by itself is insufficient for a medium or high category. This score is an **uncalibrated rule-point total**, not a fraud probability or trained AI result. Description matching is a lightweight baseline and can misread context.
+`frontend/js/risk-engine.js` contains the pure, testable prototype rules. Points are added and capped at 100: LOW is below 30, MEDIUM is 30-59 and HIGH is 60 or more. Price deviation alone contributes at most 25 points, so a low price by itself is insufficient for a medium or high category. This score is an **uncalibrated rule-point total**, not a fraud probability or trained AI result. Description matching is a lightweight baseline and can misread context.
 
 Fair value is entered or imported from the price component, not predicted by this component. Reference year 2026 and preprocessing/model versions are recorded for reproducibility. Z-scores are contextual outputs; they are not scored again on top of price/mileage rules. Location and seller-type values do not affect points; missing fields can affect completeness. This does not establish measured fairness.
 
@@ -85,6 +137,6 @@ Without a fair-value reference, the baseline assesses the other signals and mark
 
 SHAP/LIME inference, calibrated models, explanation fidelity/stability, PR-AUC/ranking quality, expert adjudication, real-world validation, production access controls, bulk platform collection and risk-adjusted lending advice are not implemented. Their integration points and pending states are visible in the frontend. Scoring latency shown is local rule computation, not advertisement fetching or server inference latency.
 
-`risk-data.js` holds six synthetic fixtures, including a normal listing, multiple-signal high-risk examples, an ordinary listing incorrectly flagged by the baseline, and a relocation bargain. Prices and labels are invented demonstrations. Do not treat these fixtures as listings from Ikman, Riyasewana or Patpat.
+`frontend/js/risk-data.js` holds six synthetic fixtures, including a normal listing, multiple-signal high-risk examples, an ordinary listing incorrectly flagged by the baseline, and a relocation bargain. Prices and labels are invented demonstrations. Do not treat these fixtures as listings from Ikman, Riyasewana or Patpat.
 
-Source: `index.html`, `style.css`, `risk.css`, `app.js`, `risk-engine.js`, `risk-data.js`, `risk-ui.js`, `listing-link-ui.js`, `listing-link.css`, `listing-import.js`, `price-engine.js`, `valuation-ui.js`, `valuation.css`. `server.js` serves the local app and advertisement-preview API on loopback. SVG vehicle illustrations are original; Google Fonts have local fallbacks.
+Source: `frontend/index.html`, `frontend/css/`, and `frontend/js/`. `backend/server.js` serves the local app and advertisement-preview API on loopback; `backend/services/listing-import.js` implements guarded server-side listing retrieval and parsing. SVG vehicle illustrations are original; Google Fonts have local fallbacks.

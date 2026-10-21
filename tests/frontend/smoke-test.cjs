@@ -6,7 +6,7 @@ const element = id => elements[id] ||= { innerHTML: '', textContent: '', value: 
 const context = {window:{addEventListener(){}},document: {getElementById: element, querySelectorAll: () => [], addEventListener() {}}, localStorage: {getItem: () => null}, location: {hash: ''}};
 context.location.hash='#overview';
 vm.createContext(context);
-vm.runInContext(fs.readFileSync(__dirname + '/app.js', 'utf8'), context);
+vm.runInContext(fs.readFileSync(__dirname + '/../../frontend/js/app.js', 'utf8'), context);
 assert(element('vehicle-list').innerHTML.includes('Toyota Aqua'));
 vm.runInContext("page='compare';compared=[1,2];render()", context);
 assert(element('page-content').innerHTML.includes('Honda Vezel'));
@@ -22,8 +22,8 @@ vm.runInContext('calculateLoan()', context);
 assert(element('loan-result').innerHTML.includes('must not exceed'));
 console.log('PASS: overview, comparison, repayment, zero interest and invalid down payment');
 
-const risk=require('./risk-engine.js');
-require('./risk-data.js');
+const risk=require('../../frontend/js/risk-engine.js');
+require('../../frontend/js/risk-data.js');
 const samples=globalThis.RiskSamples;
 assert.equal(risk.assess(samples[0]).category,'LOW');
 assert.equal(risk.assess(samples[1]).category,'HIGH');
@@ -88,7 +88,7 @@ const uiContext={
 };
 uiContext.window=uiContext;
 vm.createContext(uiContext);
-for(const filename of ['risk-engine.js','risk-data.js','listing-link-ui.js','risk-ui.js','price-engine.js','valuation-ui.js','app.js'])vm.runInContext(fs.readFileSync(__dirname+'/'+filename,'utf8'),uiContext);
+for(const filename of ['risk-engine.js','risk-data.js','listing-link-ui.js','risk-ui.js','price-engine.js','valuation-ui.js','app.js'])vm.runInContext(fs.readFileSync(__dirname+'/../../frontend/js/'+filename,'utf8'),uiContext);
 assert.equal(uiElement('breadcrumb').textContent,'Risk dashboard');
 assert(uiElement('risk-report-host').innerHTML.includes('Exact rule contributions'));
 assert(uiElement('risk-report-host').innerHTML.includes('HIGH RISK'));

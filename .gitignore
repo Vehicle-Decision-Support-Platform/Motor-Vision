@@ -1,2 +1,5 @@
 node_modules/
 .tmp/
+.env
+__pycache__/
+*.py[cod]

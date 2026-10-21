@@ -1,7 +1,7 @@
 'use strict';
 const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
-const {parseListing}=require('./listing-import');
-const Risk=require('./risk-engine');
+const {parseListing}=require('../../backend/services/listing-import');
+const Risk=require('../../frontend/js/risk-engine');
 const adUrl='https://ikman.lk/en/ad/suzuki-wagon-r-fx-safety-2025-for-sale-colombo-212';
 const ad={title:'Suzuki Wagon R FX Safety 2025',properties:Object.entries({brand:'Suzuki',model:'Wagon R',model_year:'2025',mileage:'3,000 km',fuel_type:'Petrol',transmission:'Automatic',engine_capacity:'660 cc',body:'Hatchback',condition:'Reconditioned'}).map(([key,value])=>({key,value})),money:{amount:'Rs 7,650,000'},description:'100,000 km warranty',location:{name:'Colombo'}};
 const preview=parseListing(`<script>window.initialData = ${JSON.stringify({adDetail:{data:{ad}}})};</script>`,adUrl);
@@ -12,7 +12,7 @@ function TestURL(value,base){return new URL(value,base);}
 TestURL.createObjectURL=blob=>{downloadBlob=blob;return 'blob:test';};TestURL.revokeObjectURL=()=>{};
 const context={console,URL:TestURL,Blob,AbortController,setTimeout,clearTimeout,location:{hash:'#valuation'},history:{replaceState(){}},localStorage:{getItem:()=>null},addEventListener(){},scrollTo(){},document:{getElementById:element,querySelectorAll:()=>[],addEventListener(type,callback){(listeners[type]||=[]).push(callback);},body:{append(){}},createElement(){return {set download(value){downloadName=value;},click(){},remove(){}};}},fetch:async(url,options)=>{assert.equal(url,'/api/listings/preview');assert.equal(JSON.parse(options.body).url,adUrl);return response;}};
 context.window=context;vm.createContext(context);
-for(const file of ['listing-link-ui.js','price-engine.js','valuation-ui.js','app.js'])vm.runInContext(fs.readFileSync(__dirname+'/'+file,'utf8'),context);
+for(const file of ['listing-link-ui.js','price-engine.js','valuation-ui.js','app.js'])vm.runInContext(fs.readFileSync(__dirname+'/../../frontend/js/'+file,'utf8'),context);
 const html=()=>element('page-content').innerHTML;
 const ids=['make','model','year','mileage','fuel','transmission','engine','bodyType','condition','location','valuation-asking-price','price-threshold'];
 function sync(){

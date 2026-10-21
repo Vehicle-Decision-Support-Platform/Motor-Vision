@@ -4,8 +4,8 @@ const {EventEmitter}=require('node:events');
 const {PassThrough}=require('node:stream');
 const fs=require('node:fs');
 const vm=require('node:vm');
-const {validateListingUrl,isPublicIPv4,fetchHtml,parseListing,ListingError}=require('./listing-import');
-const {createServer}=require('./server');
+const {validateListingUrl,isPublicIPv4,fetchHtml,parseListing,ListingError}=require('../../backend/services/listing-import');
+const {createServer}=require('../../backend/server');
 const adUrl='https://ikman.lk/en/ad/suzuki-wagon-r-fx-safety-2025-for-sale-colombo-212';
 const riyaUrl='https://riyasewana.com/buy/toyota-aqua-sale-kandy-9871747';
 // Invented fixture with the same published field shape; no live seller/contact data.
@@ -60,8 +60,9 @@ async function backend(){
   const post=(body,headers={})=>fetch(base+'/api/listings/preview',{method:'POST',headers:{'Content-Type':'application/json',...headers},body});
   try{
     assert.equal((await fetch(base)).status,200);
-    assert.equal((await fetch(base+'/valuation-ui.js')).status,200);
-    for(const file of ['.git/config','server.js','listing-import.js','package.json','node_modules/x','%E0%A4%A'])assert([400,404].includes((await fetch(base+'/'+file)).status));
+    assert.equal((await fetch(base+'/js/valuation-ui.js')).status,200);
+    assert.equal((await fetch(base+'/css/valuation.css')).status,200);
+    for(const file of ['.git/config','backend/server.js','backend/services/listing-import.js','package.json','node_modules/x','%E0%A4%A'])assert([400,404].includes((await fetch(base+'/'+file)).status));
     assert.equal((await fetch(base+'/api/listings/preview')).status,405);
     const response=await post(JSON.stringify({url:adUrl}));assert.equal(response.status,200);assert.equal((await response.json()).listing.mileage,3000);
     assert.equal((await post('{')).status,400);assert.equal((await post(JSON.stringify({url:'https://evil.test'}))).status,400);
@@ -78,7 +79,7 @@ async function frontend(){
   let response={ok:true,status:200,headers:{get:()=> 'application/json'},json:async()=>preview};
   const context={console,document,URL,AbortController,setTimeout,clearTimeout,location:{hash:''},history:{replaceState(){}},addEventListener(){},scrollTo(){},localStorage:{getItem:key=>storage.get(key)||null,setItem:(key,value)=>storage.set(key,value)},FormData:class{constructor(form){this.values=form.values;}[Symbol.iterator](){return Object.entries(this.values)[Symbol.iterator]();}},fetch:async(_url,options)=>{assert.equal(JSON.parse(options.body).url,adUrl);return response;}};
   context.window=context;vm.createContext(context);
-  for(const file of ['risk-engine.js','risk-data.js','listing-link-ui.js','risk-ui.js','price-engine.js','valuation-ui.js','app.js'])vm.runInContext(fs.readFileSync(__dirname+'/'+file,'utf8'),context);
+  for(const file of ['risk-engine.js','risk-data.js','listing-link-ui.js','risk-ui.js','price-engine.js','valuation-ui.js','app.js'])vm.runInContext(fs.readFileSync(__dirname+'/../../frontend/js/'+file,'utf8'),context);
   assert(element('page-content').innerHTML.includes('listing-link-form'));
   const form=element('listing-link-form'),button=element('fetch-button');form.querySelector=()=>button;form.elements.namedItem=()=>({value:adUrl,focus(){}});
   await listeners.submit[0]({target:form,preventDefault(){}});

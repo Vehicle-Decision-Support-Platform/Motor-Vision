@@ -1,5 +1,5 @@
 const assert=require('node:assert/strict');
-const P=require('./price-engine');
+const P=require('../../frontend/js/price-engine');
 const listing={make:'Toyota',model:'Aqua',year:2018,mileage:42500,price:7850000,fuel:'Hybrid',transmission:'Automatic',engine:'1500 cc',bodyType:'Hatchback',condition:'Good',location:'Colombo'};
 const catalog=[{id:1,name:'Toyota Aqua',year:2018,km:42500,price:7850000,fuel:'Hybrid'}];
 function report(vehicle=listing){return {schemaVersion:'price-model-bundle-1',currency:'LKR',vehicle,datasetVersion:'vehicles-v3',preprocessingVersion:'features-v2',splitId:'validation-split-a',evaluationSplit:'validation',sampleSize:200,threshold:{percent:5,evidence:'Tolerance chosen from validation residual analysis; supplied test fixture only.'},models:[{id:'xgboost',modelVersion:'xgb-1',metrics:{r2:.88,rmse:600000,mae:420000},predictedPrice:8000000},{id:'random_forest',modelVersion:'rf-1',metrics:{r2:.85,rmse:750000,mae:500000},predictedPrice:8200000},{id:'lightgbm',modelVersion:'lgb-1',metrics:{r2:.89,rmse:550000,mae:390000},predictedPrice:7900000}]};}
