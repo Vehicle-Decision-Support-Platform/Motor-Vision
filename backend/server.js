@@ -10,7 +10,7 @@ const defaultAuth=createAuthService({store:createUserStore(),sendResetEmail:crea
 const {assessRisk}=require('./services/risk-model');
 const frontendRoot=path.join(__dirname,'..','frontend');
 const publicFiles=new Set([
-  'index.html',
+  'index.html','css/about.css','js/about.js',
   'css/style.css','css/risk.css','css/listing-link.css','css/valuation.css','css/auth.css',
   'js/app.js','js/risk-engine.js','js/risk-data.js','js/risk-ui.js',
   'js/listing-link-ui.js','js/valuation-ui.js','js/price-engine.js','js/auth-ui.js'
