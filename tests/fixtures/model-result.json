@@ -1,0 +1,262 @@
+{
+    "features":  {
+                     "price_dev_pct":  2.6,
+                     "mileage_dev_pct":  -30.4,
+                     "mileage_per_year":  8000,
+                     "vehicle_age":  10,
+                     "listing_completeness":  0.89,
+                     "listing_age_days":  10,
+                     "flag_urgency":  0,
+                     "docs_disclosed":  1,
+                     "seller_listing_count":  1,
+                     "field_inconsistencies":  0,
+                     "photo_count":  8,
+                     "log_price":  16.11809565095832,
+                     "mileage_km":  80000,
+                     "engine_cc":  1500,
+                     "reg_gap_years":  0,
+                     "desc_length":  61,
+                     "is_reconditioned":  0,
+                     "is_manual":  0,
+                     "fuel_hybrid":  1,
+                     "fuel_diesel":  0
+                 },
+    "market":  {
+                   "fair_price_lkr":  9751000,
+                   "expected_mileage_km":  114900,
+                   "inconsistency_notes":  [
+
+                                           ],
+                   "listed_price_lkr":  10000000,
+                   "price_dev_pct":  2.6,
+                   "mileage_dev_pct":  -30.4
+               },
+    "assumptions":  [
+
+                    ],
+    "models":  {
+                   "lightgbm":  {
+                                    "probability":  6.8386989179665521E-07,
+                                    "tier":  "Low",
+                                    "reasons_risk":  [
+                                                         {
+                                                             "feature":  "listing_age_days",
+                                                             "label":  "Days the ad has been live",
+                                                             "shap":  0.102,
+                                                             "text":  "Ad has been live for 10 days."
+                                                         },
+                                                         {
+                                                             "feature":  "vehicle_age",
+                                                             "label":  "Vehicle age",
+                                                             "shap":  0.098,
+                                                             "text":  "Vehicle is 10 years old."
+                                                         },
+                                                         {
+                                                             "feature":  "listing_completeness",
+                                                             "label":  "Listing completeness",
+                                                             "shap":  0.061,
+                                                             "text":  "Some key specification fields are missing."
+                                                         }
+                                                     ],
+                                    "reasons_ok":  [
+                                                       {
+                                                           "feature":  "price_dev_pct",
+                                                           "label":  "Price vs market fair value",
+                                                           "shap":  -3.323,
+                                                           "text":  "Asking price is +3% vs the estimated market value (Rs 9,751,000)."
+                                                       },
+                                                       {
+                                                           "feature":  "mileage_dev_pct",
+                                                           "label":  "Mileage vs typical for its age/model",
+                                                           "shap":  -0.424,
+                                                           "text":  "Mileage 80,000 km is normal for its age (-30% vs typical)."
+                                                       },
+                                                       {
+                                                           "feature":  "field_inconsistencies",
+                                                           "label":  "Inconsistent listing fields",
+                                                           "shap":  -0.246,
+                                                           "text":  "Listing fields are internally consistent."
+                                                       },
+                                                       {
+                                                           "feature":  "engine_cc",
+                                                           "label":  "Engine capacity",
+                                                           "shap":  -0.143,
+                                                           "text":  "Engine capacity 1500 cc."
+                                                       }
+                                                   ],
+                                    "shap_raw":  {
+                                                     "price_dev_pct":  -2.8327,
+                                                     "mileage_dev_pct":  -0.3126,
+                                                     "mileage_per_year":  -0.0828,
+                                                     "vehicle_age":  0.0983,
+                                                     "listing_completeness":  0.0605,
+                                                     "listing_age_days":  0.1016,
+                                                     "flag_urgency":  -0.0644,
+                                                     "docs_disclosed":  -0.1137,
+                                                     "seller_listing_count":  0.045,
+                                                     "field_inconsistencies":  -0.2459,
+                                                     "photo_count":  -0.095,
+                                                     "log_price":  -0.4898,
+                                                     "mileage_km":  -0.0287,
+                                                     "engine_cc":  -0.1433,
+                                                     "reg_gap_years":  0.0073,
+                                                     "desc_length":  -0.1318,
+                                                     "is_reconditioned":  0.1318,
+                                                     "is_manual":  0.0004,
+                                                     "fuel_hybrid":  0.0036,
+                                                     "fuel_diesel":  -0.0352
+                                                 },
+                                    "lime":  [
+                                                 [
+                                                     "field_inconsistencies \u003c= 0.00",
+                                                     -0.7471944099788036
+                                                 ],
+                                                 [
+                                                     "-0.80 \u003c price_dev_pct \u003c= 10.78",
+                                                     -0.23104739744992364
+                                                 ],
+                                                 [
+                                                     "is_reconditioned \u003c= 0.00",
+                                                     0.04347061678642739
+                                                 ],
+                                                 [
+                                                     "seller_listing_count \u003c= 1.00",
+                                                     0.03507589244161372
+                                                 ],
+                                                 [
+                                                     "0.00 \u003c docs_disclosed \u003c= 1.00",
+                                                     -0.0322983113535305
+                                                 ],
+                                                 [
+                                                     "5000.00 \u003c mileage_per_year \u003c= 8660.50",
+                                                     -0.031223521948445056
+                                                 ]
+                                             ],
+                                    "lime_fidelity":  0.13767692131363096
+                                },
+                   "logreg":  {
+                                  "probability":  0.33949701434547286,
+                                  "tier":  "Medium",
+                                  "reasons_risk":  [
+                                                       {
+                                                           "feature":  "listing_completeness",
+                                                           "label":  "Listing completeness",
+                                                           "shap":  1.688,
+                                                           "text":  "Some key specification fields are missing."
+                                                       },
+                                                       {
+                                                           "feature":  "engine_cc",
+                                                           "label":  "Engine capacity",
+                                                           "shap":  0.212,
+                                                           "text":  "Engine capacity 1500 cc."
+                                                       },
+                                                       {
+                                                           "feature":  "vehicle_age",
+                                                           "label":  "Vehicle age",
+                                                           "shap":  0.106,
+                                                           "text":  "Vehicle is 10 years old."
+                                                       }
+                                                   ],
+                                  "reasons_ok":  [
+                                                     {
+                                                         "feature":  "docs_disclosed",
+                                                         "label":  "Ownership / document details",
+                                                         "shap":  -0.327,
+                                                         "text":  "Ownership/document details are disclosed."
+                                                     },
+                                                     {
+                                                         "feature":  "mileage_dev_pct",
+                                                         "label":  "Mileage vs typical for its age/model",
+                                                         "shap":  -0.173,
+                                                         "text":  "Mileage 80,000 km is normal for its age (-30% vs typical)."
+                                                     },
+                                                     {
+                                                         "feature":  "field_inconsistencies",
+                                                         "label":  "Inconsistent listing fields",
+                                                         "shap":  -0.173,
+                                                         "text":  "Listing fields are internally consistent."
+                                                     },
+                                                     {
+                                                         "feature":  "price_dev_pct",
+                                                         "label":  "Price vs market fair value",
+                                                         "shap":  -0.105,
+                                                         "text":  "Asking price is +3% vs the estimated market value (Rs 9,751,000)."
+                                                     }
+                                                 ],
+                                  "shap_raw":  {
+                                                   "price_dev_pct":  -0.0495,
+                                                   "mileage_dev_pct":  -0.1861,
+                                                   "mileage_per_year":  0.023,
+                                                   "vehicle_age":  0.1058,
+                                                   "listing_completeness":  1.6877,
+                                                   "listing_age_days":  0.0015,
+                                                   "flag_urgency":  0,
+                                                   "docs_disclosed":  -0.3273,
+                                                   "seller_listing_count":  0.0374,
+                                                   "field_inconsistencies":  -0.1731,
+                                                   "photo_count":  0.0032,
+                                                   "log_price":  -0.0553,
+                                                   "mileage_km":  -0.0103,
+                                                   "engine_cc":  0.212,
+                                                   "reg_gap_years":  0.0349,
+                                                   "desc_length":  0.1423,
+                                                   "is_reconditioned":  0.0293,
+                                                   "is_manual":  -0.0667,
+                                                   "fuel_hybrid":  -0.7171,
+                                                   "fuel_diesel":  -0.0216
+                                               },
+                                  "lime":  [
+                                               [
+                                                   "field_inconsistencies \u003c= 0.00",
+                                                   -0.6378002588759965
+                                               ],
+                                               [
+                                                   "flag_urgency \u003c= 0.00",
+                                                   -0.19411048825750477
+                                               ],
+                                               [
+                                                   "0.00 \u003c docs_disclosed \u003c= 1.00",
+                                                   -0.07632653509061946
+                                               ],
+                                               [
+                                                   "fuel_hybrid \u003e 0.00",
+                                                   -0.06043004627516357
+                                               ],
+                                               [
+                                                   "seller_listing_count \u003c= 1.00",
+                                                   0.059752173933851245
+                                               ],
+                                               [
+                                                   "listing_age_days \u003e 5.00",
+                                                   -0.04205159922253981
+                                               ]
+                                           ],
+                                  "lime_fidelity":  0.09403985641214574
+                              }
+               },
+    "final_tier":  "Low",
+    "escalated":  false,
+    "red_flags":  [
+
+                  ],
+    "risk_score":  0,
+    "modelVersion":  "lightgbm-79ebdb94b3ee",
+    "thresholds":  {
+                       "lightgbm":  {
+                                        "medium":  0.15,
+                                        "high":  0.5
+                                    },
+                       "logreg":  {
+                                      "medium":  0.15,
+                                      "high":  0.5
+                                  }
+                   },
+    "assessedAt":  "2026-10-22T04:32:50.970133+00:00",
+    "latencyMs":  3386.8541000410914,
+    "inputDefaults":  {
+                          "sellerListingCount":  1,
+                          "registrationYear":  null,
+                          "condition":  ""
+                      },
+    "limitation":  "Trained on heuristic weak labels; probability is not verified fraud probability."
+}
