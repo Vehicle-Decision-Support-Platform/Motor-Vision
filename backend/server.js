@@ -2,25 +2,32 @@
 const http = require('node:http');
 const fs = require('node:fs');
 const path = require('node:path');
+require('dotenv').config({path:path.join(__dirname,'..','.env'),quiet:true});
 const {previewListing,ListingError} = require('./services/listing-import');
+const {createAuthService,createUserStore} = require('./services/auth');
+const {createMailer} = require('./services/mailer');
+const defaultAuth=createAuthService({store:createUserStore(),sendResetEmail:createMailer()});
 const frontendRoot=path.join(__dirname,'..','frontend');
 const publicFiles=new Set([
   'index.html',
-  'css/style.css','css/risk.css','css/listing-link.css','css/valuation.css',
+  'css/style.css','css/risk.css','css/listing-link.css','css/valuation.css','css/auth.css',
   'js/app.js','js/risk-engine.js','js/risk-data.js','js/risk-ui.js',
-  'js/listing-link-ui.js','js/valuation-ui.js','js/price-engine.js'
+  'js/listing-link-ui.js','js/valuation-ui.js','js/price-engine.js','js/auth-ui.js'
 ]);
 function json(res,status,value){res.writeHead(status,{'Content-Type':'application/json; charset=utf-8'});res.end(JSON.stringify(value));}
 function readBody(req){return new Promise((resolve,reject)=>{
   let size=0,text='';req.on('data',chunk=>{size+=chunk.length;if(size>4096){reject(new ListingError('Request is too large.',413));return;}text+=chunk;});
   req.on('end',()=>{try{resolve(JSON.parse(text));}catch{reject(new ListingError('Send a JSON object containing the advertisement URL.',400));}});req.on('error',reject);
 });}
-function createServer({preview=previewListing}={}){
+function createServer({preview=previewListing,auth=defaultAuth}={}){
   let active=0;const requests=new Map();
   return http.createServer(async(req,res)=>{
     res.setHeader('Cache-Control','no-store, max-age=0');res.setHeader('X-Content-Type-Options','nosniff');
+    res.setHeader('Referrer-Policy','strict-origin-when-cross-origin');res.setHeader('X-Frame-Options','DENY');
     let pathname;try{pathname=decodeURIComponent(new URL(req.url,'http://localhost').pathname);}catch{res.writeHead(400);return res.end('Invalid URL');}
+    if(pathname.startsWith('/api/auth/')){try{return await auth.handle(req,res,pathname);}catch{return json(res,500,{error:'Authentication service is unavailable.'});}}
     if(pathname==='/api/listings/preview'){
+      try{if(!await auth.userFromRequest(req))return json(res,401,{error:'Sign in to import an advertisement.'});}catch{return json(res,500,{error:'Authentication service is unavailable.'});}
       if(req.method!=='POST'){res.setHeader('Allow','POST');return json(res,405,{error:'Use POST to preview a listing.'});}
       if(!/^application\/json(?:;|$)/i.test(req.headers['content-type']||''))return json(res,415,{error:'Send application/json.'});
       const host=req.headers.host;
@@ -46,6 +53,6 @@ function createServer({preview=previewListing}={}){
   });
 }
 const server=createServer();
-if(require.main===module)server.listen(Number(process.env.PORT||3000),'127.0.0.1',()=>console.log(`Motor Vision: http://localhost:${server.address().port}/?v=price-proposal-1#risk`));
+if(require.main===module)server.listen(Number(process.env.PORT||3000),'127.0.0.1',()=>{console.log(`Motor Vision: http://localhost:${server.address().port}/`);defaultAuth.store.connect().then(()=>console.log(`Accounts: ${defaultAuth.store.name}`)).catch(error=>console.error(`Accounts database connection failed (${defaultAuth.store.name}):`,error.message));});
 module.exports=server;
 module.exports.createServer=createServer;

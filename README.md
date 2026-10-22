@@ -47,7 +47,7 @@ npm install
 npm start
 ```
 
-`npm install` is optional at present because the project has no external Node dependencies; it is included as the conventional setup step. Open http://localhost:3000. Run `npm run check` for JavaScript syntax validation.
+`npm install` is optional at present because the project has no external Node dependencies; it is included as the conventional setup step. Open http://localhost:3000. The site opens on the Home page; the header links to each component, with the risk pages grouped under **Risk assessment** (a menu button replaces the links on narrow screens). Run `npm run check` for JavaScript syntax validation.
 
 Both `npm run dev` and `npm start` also work from the outer workspace folder. Run `npm test` for the risk-engine and frontend smoke tests. No npm dependencies are required.
 
@@ -68,9 +68,35 @@ Browser frontend → Node REST API → Python FastAPI ML service → versioned m
 
 The Node backend should remain the public application boundary and validate/authenticate requests. The future Python service should load component-specific artifacts, validate typed schemas, and return versioned predictions plus explanation metadata. Configure its internal URL with `ML_API_URL`; do not expose model files directly to the browser. `ml-api/main.py` and `ml-api/requirements.txt` are intentionally non-operational until a real inference contract and trained artifact exist.
 
+## Authentication and password reset
+
+Visitors can browse the public website without an account. Submitting forms, importing advertisements, running assessments or valuations, saving/comparing vehicles, and exporting results opens the sign-in dialog. Users can create an account, sign in, sign out, and request a one-time password-reset email.
+
+Passwords are hashed with Node.js `scrypt`. The readable password is never stored. Sessions use signed, `HttpOnly`, `SameSite=Lax` cookies and are invalidated when the password changes. Local user records are stored in the ignored `backend/data/users.json` file; use a managed database before deploying multiple server instances or production workloads.
+
+Create the local configuration without committing it:
+
+```sh
+cp .env.example .env
+openssl rand -hex 32
+```
+
+Put the generated value in `SESSION_SECRET`. For Gmail reset messages, enable 2-Step Verification on the sender Google Account, create a 16-character App Password, and set these values in `.env`:
+
+```dotenv
+APP_URL=http://localhost:3000
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=465
+SMTP_USER=your-address@gmail.com
+SMTP_APP_PASSWORD=your-16-character-app-password
+MAIL_FROM=your-address@gmail.com
+```
+
+Use the Google App Password—not the normal Gmail account password. `.env` and the user store are excluded by `.gitignore`.
+
 ## Individual component: IT23380400
 
-The default screen now implements the **Explainable AI-Based Vehicle Risk Assessment** component described in `IT23380400.pdf`, especially sections 3.3, 4.2 and 5.1. Other platform tools remain accessible from the second navigation group.
+The **Risk assessment** menu in the site header implements the **Explainable AI-Based Vehicle Risk Assessment** component described in `IT23380400.pdf`, especially sections 3.3, 4.2 and 5.1. Its pages open at `#risk`, `#assess`, `#risk-history`, `#model-lab` and `#risk-data`.
 
 - Risk dashboard: review queue with search, risk-category filtering, risk/price sorting, risk score and LOW/MEDIUM/HIGH category.
 - Explanation report: exact baseline point contributions, human-readable reasons, engineered features and verification checklist. Every displayed risk category is accompanied by a report.

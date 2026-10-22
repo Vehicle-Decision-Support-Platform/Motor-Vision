@@ -1,5 +1,7 @@
 node_modules/
 .tmp/
 .env
+backend/data/users.json
+backend/data/*.tmp
 __pycache__/
 *.py[cod]
