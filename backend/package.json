@@ -1,0 +1,20 @@
+{
+  "name": "motor-vision-backend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Motor Vision backend API (auth, OTP password reset, listing import)",
+  "main": "server.js",
+  "scripts": {
+    "dev": "node --watch server.js",
+    "start": "node server.js",
+    "check": "node --check server.js && node --check services/auth.js && node --check services/mailer.js && node --check services/listing-import.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "dotenv": "^17.2.3",
+    "mongodb": "^6.21.0",
+    "nodemailer": "^10.2.0"
+  }
+}
