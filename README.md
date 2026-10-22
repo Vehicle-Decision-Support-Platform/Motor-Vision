@@ -106,14 +106,13 @@ Use the Google App Password—not the normal Gmail account password. `.env` and 
 
 ## Individual component: IT23380400
 
-The **Risk assessment** menu in the site header implements the **Explainable AI-Based Vehicle Risk Assessment** component described in `IT23380400.pdf`, especially sections 3.3, 4.2 and 5.1. Its pages open at `#risk`, `#assess`, `#risk-history`, `#model-lab` and `#risk-data`.
+The **Risk assessment** menu in the site header implements the **Explainable AI-Based Vehicle Risk Assessment** component described in `IT23380400.pdf`, especially sections 3.3, 4.2 and 5.1. Its pages open at `#risk`, `#assess`, `#risk-history` and `#model-lab`.
 
 - Risk dashboard: review queue with search, risk-category filtering, risk/price sorting, risk score and LOW/MEDIUM/HIGH category.
 - Explanation report: exact baseline point contributions, human-readable reasons, engineered features and verification checklist. Every displayed risk category is accompanied by a report.
 - Assess a listing: structured vehicle details, description, photo count, listing age, fair-value input and optional cohort statistics. Load and edit a synthetic example, then assess it locally.
 - Model evaluation: precision, recall, false-positive rate, missed-risk rate and confusion counts calculated on the current labeled collection. Unlabeled records are excluded. Undefined metrics display as unavailable. Initial labels are synthetic, not expert-adjudicated research results.
 - Assessment history: up to 50 manual/import results stored in this browser with model, preprocessing and dataset versions. Original descriptions and seller contact fields are not included in history or risk-result exports.
-- Data & integration: read local JSON files or paste versioned listing records; validate the entire batch before replacing the queue; export sample input, risk results, history and evaluation metadata.
 
 ## Assess a vehicle advertisement link
 
