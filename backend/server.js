@@ -8,9 +8,10 @@ const {createAuthService,createUserStore} = require('./services/auth');
 const {createMailer} = require('./services/mailer');
 const defaultAuth=createAuthService({store:createUserStore(),sendResetEmail:createMailer()});
 const {assessRisk}=require('./services/risk-model');
+const recommendationModel=require('./services/recommendation-model');
 const frontendRoot=path.join(__dirname,'..','frontend');
 const publicFiles=new Set([
-  'index.html','css/about.css','js/about.js',
+  'index.html','css/about.css','js/about.js','css/recommendation.css','js/recommendation-ui.js',
   'css/style.css','css/risk.css','css/listing-link.css','css/valuation.css','css/auth.css',
   'js/app.js','js/risk-engine.js','js/risk-data.js','js/risk-ui.js',
   'js/listing-link-ui.js','js/valuation-ui.js','js/price-engine.js','js/auth-ui.js',
@@ -21,13 +22,28 @@ function readBody(req,maxSize=4096){return new Promise((resolve,reject)=>{
   let size=0,text='';req.on('data',chunk=>{size+=chunk.length;if(size>maxSize){reject(new ListingError('Request is too large.',413));return;}text+=chunk;});
   req.on('end',()=>{try{resolve(JSON.parse(text));}catch{reject(new ListingError('Send a JSON object containing the advertisement URL.',400));}});req.on('error',reject);
 });}
-function createServer({preview=previewListing,auth=defaultAuth}={}){
+function createServer({preview=previewListing,auth=defaultAuth,recommendations=recommendationModel}={}){
   let active=0;const requests=new Map();
   return http.createServer(async(req,res)=>{
     res.setHeader('Cache-Control','no-store, max-age=0');res.setHeader('X-Content-Type-Options','nosniff');
     res.setHeader('Referrer-Policy','strict-origin-when-cross-origin');res.setHeader('X-Frame-Options','DENY');
     let pathname;try{pathname=decodeURIComponent(new URL(req.url,'http://localhost').pathname);}catch{res.writeHead(400);return res.end('Invalid URL');}
     if(pathname.startsWith('/api/auth/')){try{return await auth.handle(req,res,pathname);}catch{return json(res,500,{error:'Authentication service is unavailable.'});}}
+    if(pathname==='/api/recommendations/options'||pathname==='/api/recommendations'){
+      const isOptions=pathname.endsWith('/options'),method=isOptions?'GET':'POST';
+      if(req.method!==method){res.setHeader('Allow',method);return json(res,405,{error:`Use ${method}.`});}
+      const host=req.headers.host;
+      if(!/^(localhost|127\.0\.0\.1)(:\d+)?$/.test(host||'')||req.headers.origin&&req.headers.origin!==`http://${host}`||req.headers['sec-fetch-site']==='cross-site')return json(res,403,{error:'Use the local Motor Vision application.'});
+      if(!isOptions){
+        try{if(!await auth.userFromRequest(req))return json(res,401,{error:'Sign in to generate vehicle recommendations.'});}catch{return json(res,500,{error:'Authentication service is unavailable.'});}
+        if(!/^application\/json(?:;|$)/i.test(req.headers['content-type']||''))return json(res,415,{error:'Send application/json.'});
+      }
+      try{
+        const payload=isOptions?null:await readBody(req,16384);
+        if(!isOptions&&(!payload||Array.isArray(payload)||typeof payload!=='object'))return json(res,400,{error:'Send preferences, topN and mode.'});
+        return json(res,200,isOptions?await recommendations.options():await recommendations.recommend(payload));
+      }catch(error){return json(res,error instanceof ListingError?error.status:[400,429].includes(error.status)?error.status:503,{error:error.message});}
+    }
     if(pathname==='/api/risk/assess'){
       if(req.method!=='POST')return json(res,405,{error:'Use POST.'});
       if(!/^application\/json(?:;|$)/i.test(req.headers['content-type']||''))return json(res,415,{error:'Send application/json.'});

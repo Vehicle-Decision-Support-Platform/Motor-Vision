@@ -5,7 +5,9 @@
   "scripts": {
     "dev": "node --watch backend/server.js",
     "start": "node backend/server.js",
-    "check": "node --check frontend/js/about.js && node --check frontend/js/app.js && node --check frontend/js/auth-ui.js && node --check backend/server.js && node --check backend/services/auth.js && node --check backend/services/mailer.js && node --check frontend/js/risk-engine.js && node --check frontend/js/risk-data.js && node --check frontend/js/risk-ui.js && node --check backend/services/listing-import.js && node --check frontend/js/listing-link-ui.js && node --check frontend/js/valuation-ui.js && node --check frontend/js/price-engine.js",
+    "check": "node --check frontend/js/recommendation-ui.js && node --check backend/services/recommendation-model.js && node --check frontend/js/about.js && node --check frontend/js/app.js && node --check frontend/js/auth-ui.js && node --check backend/server.js && node --check backend/services/auth.js && node --check backend/services/mailer.js && node --check frontend/js/risk-engine.js && node --check frontend/js/risk-data.js && node --check frontend/js/risk-ui.js && node --check backend/services/listing-import.js && node --check frontend/js/listing-link-ui.js && node --check frontend/js/valuation-ui.js && node --check frontend/js/price-engine.js",
+    "test:recommendations": "node tests/integration/recommendation-model.test.cjs",
+    "test:recommendation-ui": "node tests/frontend/recommendation-ui.test.cjs",
     "test:about": "node tests/frontend/about.test.cjs",
     "test": "node tests/frontend/smoke-test.cjs && node tests/frontend/auth-ui.test.cjs && node tests/backend/auth.test.cjs && node tests/integration/listing-import.test.cjs && node tests/frontend/price-engine.test.cjs && node tests/frontend/valuation-ui.test.cjs"
   },

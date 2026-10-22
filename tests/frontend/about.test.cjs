@@ -21,7 +21,7 @@ const context = {
 };
 context.window = context;
 vm.createContext(context);
-for (const file of ['about.js', 'app.js']) {
+for (const file of ['recommendation-ui.js', 'about.js', 'app.js']) {
   vm.runInContext(fs.readFileSync(path.join(root, 'frontend/js', file), 'utf8'), context);
 }
 assert.equal(context.document.title, 'About us | Motor Vision');

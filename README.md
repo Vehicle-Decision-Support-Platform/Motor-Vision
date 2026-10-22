@@ -1,3 +1,12 @@
+# Integrated feature recommendation (IT23361386)
+
+The supplied trained LightGBM + SHAP recommendation model is connected at
+`/#recommendations`. Run `npm run dev`, then open **Recommendations** and sign in
+to generate a Top-N feature-match shortlist. See
+[Component 02 setup, API and proposal mapping](docs/recommendation-integration.md).
+The model learns synthetic matching labels; its catalogue is not live inventory.
+Earlier recommendation descriptions below predate this integration.
+
 # Motor-Vision
 
 ## Trained risk model connection
