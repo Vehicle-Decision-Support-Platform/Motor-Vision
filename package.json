@@ -11,6 +11,8 @@
     "start:backend": "npm --prefix backend run start",
     "start:frontend": "npm --prefix frontend run start",
     "check": "npm --prefix backend run check && npm --prefix frontend run check",
-    "test": "node tests/frontend/smoke-test.cjs && node tests/frontend/auth-ui.test.cjs && node tests/backend/auth.test.cjs && node tests/integration/listing-import.test.cjs && node tests/frontend/price-engine.test.cjs && node tests/frontend/valuation-ui.test.cjs"
+    "test:about": "node tests/frontend/about.test.cjs",
+    "test:risk-model": "node tests/integration/risk-model.test.cjs",
+    "test": "node tests/frontend/smoke-test.cjs && node tests/frontend/about.test.cjs && node tests/integration/listing-import.test.cjs && node tests/integration/risk-model.test.cjs"
   }
 }

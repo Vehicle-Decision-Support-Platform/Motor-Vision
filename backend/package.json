@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "node --watch server.js",
     "start": "node server.js",
-    "check": "node --check server.js && node --check services/auth.js && node --check services/mailer.js && node --check services/listing-import.js"
+    "check": "node --check server.js && node --check services/auth.js && node --check services/mailer.js && node --check services/listing-import.js && node --check services/risk-model.js"
   },
   "engines": {
     "node": ">=20"

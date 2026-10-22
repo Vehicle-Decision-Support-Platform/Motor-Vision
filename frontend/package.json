@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "node --watch server.js",
     "start": "node server.js",
-    "check": "node --check server.js && node --check js/app.js && node --check js/auth-ui.js && node --check js/risk-engine.js && node --check js/risk-data.js && node --check js/risk-ui.js && node --check js/listing-link-ui.js && node --check js/valuation-ui.js && node --check js/price-engine.js"
+    "check": "node --check server.js && node --check js/about.js && node --check js/app.js && node --check js/auth-ui.js && node --check js/risk-engine.js && node --check js/risk-data.js && node --check js/risk-ui.js && node --check js/listing-link-ui.js && node --check js/valuation-ui.js && node --check js/price-engine.js"
   },
   "engines": {
     "node": ">=20"

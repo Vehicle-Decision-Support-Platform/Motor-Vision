@@ -1,4 +1,14 @@
 # Motor-Vision
+
+## Trained risk model connection
+
+Manual assessments and reviewed ad-link assessments now call the supplied trained
+LightGBM bundle through the Node backend and a persistent Python worker. Reports
+include SHAP, LIME and the Logistic Regression comparison. Start with `npm run dev`.
+See [Python runtime and model integration](ml-api/README.md) for setup, recovered
+Python 3.13 runtime requirements, input assumptions and verification commands.
+The synthetic sample queue and JSON batch imports still use the rule baseline.
+Earlier prototype descriptions below refer to that baseline unless stated otherwise.
 AI-powered vehicle market intelligence and decision support platform for Sri Lanka's used-car market: price evaluation, feature recommendation, explainable risk assessment, and affordability insights.
 
 ## Research components

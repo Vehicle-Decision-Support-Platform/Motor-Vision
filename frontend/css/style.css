@@ -4,7 +4,7 @@
 
 /* Site header and navigation */
 .site-header{position:sticky;top:0;z-index:30;background:var(--navy);border-bottom:1px solid #232c37;box-shadow:0 8px 28px #0f151d1f}
-.header-inner{width:min(var(--container),100% - 2*var(--gutter));margin-inline:auto;height:72px;display:flex;align-items:center;gap:14px}
+.header-inner{width:min(1440px,100% - 2*var(--gutter));margin-inline:auto;height:72px;display:flex;align-items:center;gap:14px}
 .brand{display:flex;gap:9px;align-items:center;flex-shrink:0}.brand img{display:block;width:auto}.brand-mark{height:40px}.brand-word{height:16px}
 .site-nav{display:flex;align-items:center;gap:2px;margin-left:auto}
 .site-nav>button,.nav-trigger{position:relative;display:flex;align-items:center;gap:6px;white-space:nowrap;background:none;border:0;border-radius:7px;padding:10px 9px;color:#c2c9d2;font-size:13.5px;font-weight:500}
@@ -101,7 +101,7 @@ dialog{border:0;border-radius:14px;width:min(560px,92vw);padding:30px;color:#1d2
 .footer-bottom{width:min(var(--container),100% - 2*var(--gutter));margin-inline:auto;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px 24px;padding:20px 0 28px;border-top:1px solid #232c37;color:#717b88;font-size:11px}
 
 @media(min-width:1500px){.car-image{height:210px}}
-@media(max-width:1240px){
+@media(max-width:1320px){
   .menu-toggle{display:block;order:3}.header-cta{margin-left:auto}
   .site-nav{display:none;position:absolute;top:72px;left:0;right:0;flex-direction:column;align-items:stretch;gap:2px;max-height:calc(100vh - 72px);overflow:auto;margin:0;padding:12px var(--gutter) 22px;background:var(--navy);border-bottom:1px solid #232c37;box-shadow:0 24px 40px #070b1055}
   .site-header.menu-open .site-nav{display:flex}
