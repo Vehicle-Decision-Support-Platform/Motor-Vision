@@ -5,3 +5,21 @@
 @media(max-width:950px){.risk-layout,.assessment-layout,.data-grid{grid-template-columns:1fr}.assessment-help{position:static}.risk-items{max-height:430px;overflow:auto}.risk-bottom-panels,.research-layout{grid-template-columns:1fr}.metric-grid{grid-template-columns:1fr 1fr}.score-ring{flex-basis:120px;height:120px}}
 @media(max-width:800px){.risk-stats{grid-template-columns:1fr 1fr}.risk-stat strong{font-size:25px}.risk-mode-toggle span{font-size:9px;padding:8px}.report-tabs{gap:20px}}
 @media(max-width:520px){.score-overview{gap:18px}.score-ring{flex-basis:95px;height:95px}.score-overview h3{font-size:15px}.report-body{padding:18px}.report-header h2{font-size:16px}.feature-grid{gap:8px}.feature-tile strong{font-size:12px}.risk-actions{width:100%}.risk-actions .primary{flex:1}.risk-layout{gap:18px}.risk-bottom-panels{grid-template-columns:1fr}.history-row{align-items:start;flex-direction:column}.history-actions{width:100%}.how-steps{flex-direction:column}.risk-stat{padding:16px}.metric-grid{gap:10px}.metric-card{padding:16px}.report-meta{padding:14px 18px}.report-header{align-items:start}.prototype-note{font-size:10px}}
+
+/* Motor Vision navy/red brand alignment; semantic risk levels retain their own colors. */
+.risk-breadcrumb i{background:var(--brand-red)}
+.prototype-note{border-color:#e0e5eb;background:#f5f7fa;color:#566b7c}
+.risk-stat strong{color:var(--navy)}
+.risk-item:hover{background:#f8f9fb}.risk-item.selected{background:var(--brand-red-soft);box-shadow:inset 3px 0 var(--brand-red)}
+.report-tab.active{color:var(--brand-red);border-color:var(--brand-red)}
+.how-step>span{color:var(--brand-red)}
+.form-section-title>span{border-color:#f1cbd1;background:var(--brand-red-soft);color:var(--brand-red)}
+.assessment-form summary,.risk-data-panel summary{color:var(--brand-red)}
+.json-preview{background:#141b24;color:#d7e2ed}
+.integration-path span{background:#f3f5f8;color:#4c6173}
+.risk-insight-link{background:var(--brand-red-soft);border-color:#f0cdd3;color:#b51529}
+.risk-mode-toggle .selected{color:#263d52;background:#eef2f6}
+.overview-risk-system{border-color:#2a3440;background:radial-gradient(circle at 92% 8%,#e2182f29 0,transparent 44%),linear-gradient(115deg,#0f151d,#1d2733);color:#f4f7fa}
+.overview-risk-system .tag,.overview-risk-system h2 span{color:#ff4f5c}.overview-risk-system p{color:#b8c0ca}.overview-risk-features{color:#d6dbe1}
+.overview-risk-system .primary{background:var(--brand-red)}.overview-risk-system .primary:hover{background:var(--brand-red-dark)}
+.overview-risk-symbol{color:#ff4f5c}.overview-risk-symbol svg{filter:drop-shadow(0 8px 22px #e2182f42)}
