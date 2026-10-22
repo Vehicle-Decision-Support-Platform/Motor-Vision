@@ -1,6 +1,6 @@
 'use strict';
+// Backend API server. The website is served separately by frontend/server.js.
 const http = require('node:http');
-const fs = require('node:fs');
 const path = require('node:path');
 require('dotenv').config({path:path.join(__dirname,'..','.env'),quiet:true});
 const {previewListing,ListingError} = require('./services/listing-import');
@@ -8,6 +8,7 @@ const {createAuthService,createUserStore} = require('./services/auth');
 const {createMailer} = require('./services/mailer');
 const defaultAuth=createAuthService({store:createUserStore(),sendResetEmail:createMailer()});
 const {assessRisk}=require('./services/risk-model');
+<<<<<<< HEAD
 const recommendationModel=require('./services/recommendation-model');
 const frontendRoot=path.join(__dirname,'..','frontend');
 const publicFiles=new Set([
@@ -17,6 +18,8 @@ const publicFiles=new Set([
   'js/listing-link-ui.js','js/valuation-ui.js','js/price-engine.js','js/auth-ui.js',
   ...['logo.svg','logo-light.svg','logo-mark.svg','logo-mark-light.svg','wordmark-light.svg','favicon.svg','favicon.png','favicon-192.png','apple-touch-icon.png'].map(file=>'assets/images/'+file)
 ]);
+=======
+>>>>>>> 974c5c1186c8d412dc56a9f9b41890d904011d40
 function json(res,status,value){res.writeHead(status,{'Content-Type':'application/json; charset=utf-8'});res.end(JSON.stringify(value));}
 function readBody(req,maxSize=4096){return new Promise((resolve,reject)=>{
   let size=0,text='';req.on('data',chunk=>{size+=chunk.length;if(size>maxSize){reject(new ListingError('Request is too large.',413));return;}text+=chunk;});
@@ -53,7 +56,6 @@ function createServer({preview=previewListing,auth=defaultAuth,recommendations=r
       catch(error){return json(res,error instanceof ListingError?error.status:503,{error:error.message});}
     }
     if(pathname==='/api/listings/preview'){
-      try{if(!await auth.userFromRequest(req))return json(res,401,{error:'Sign in to import an advertisement.'});}catch{return json(res,500,{error:'Authentication service is unavailable.'});}
       if(req.method!=='POST'){res.setHeader('Allow','POST');return json(res,405,{error:'Use POST to preview a listing.'});}
       if(!/^application\/json(?:;|$)/i.test(req.headers['content-type']||''))return json(res,415,{error:'Send application/json.'});
       const host=req.headers.host;
@@ -68,17 +70,11 @@ function createServer({preview=previewListing,auth=defaultAuth,recommendations=r
       finally{active--;}
       return;
     }
-    if(!['GET','HEAD'].includes(req.method)){res.writeHead(405);return res.end();}
-    const name=pathname==='/'?'index.html':pathname==='/favicon.ico'?'assets/images/favicon.png':pathname.slice(1);
-    if(!publicFiles.has(name)){res.writeHead(404);return res.end('Not found');}
-    fs.readFile(path.join(frontendRoot,name),(err,data)=>{
-      if(err){res.writeHead(404);return res.end('Not found');}
-      res.setHeader('Content-Type',({'.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.js':'text/javascript; charset=utf-8','.png':'image/png','.svg':'image/svg+xml'})[path.extname(name)]);
-      res.end(req.method==='HEAD'?undefined:data);
-    });
+    if(pathname==='/api/health'&&req.method==='GET')return json(res,200,{ok:true,service:'motor-vision-api',accounts:auth.store?.name||null});
+    return json(res,404,{error:pathname.startsWith('/api/')?'Not found.':'This is the Motor Vision API. Open the website from the frontend server instead.'});
   });
 }
 const server=createServer();
-if(require.main===module)server.listen(Number(process.env.PORT||3000),'127.0.0.1',()=>{console.log(`Motor Vision: http://localhost:${server.address().port}/`);defaultAuth.store.connect().then(()=>console.log(`Accounts: ${defaultAuth.store.name}`)).catch(error=>console.error(`Accounts database connection failed (${defaultAuth.store.name}):`,error.message));});
+if(require.main===module)server.listen(Number(process.env.API_PORT||4000),'127.0.0.1',()=>{console.log(`Motor Vision API: http://localhost:${server.address().port}/api/health`);defaultAuth.store.connect().then(()=>console.log(`Accounts: ${defaultAuth.store.name}`)).catch(error=>console.error(`Accounts database connection failed (${defaultAuth.store.name}):`,error.message));});
 module.exports=server;
 module.exports.createServer=createServer;

@@ -82,7 +82,7 @@ const uiContext={
   console,setTimeout(){return 1;},clearTimeout(){},
   document:{getElementById:uiElement,querySelectorAll:()=>[],addEventListener(type,callback){(listeners[type]||=[]).push(callback);}},
   localStorage:{getItem:key=>storage.get(key)||null,setItem:(key,value)=>storage.set(key,value)},
-  location:{hash:''},history:{replaceState(){}},
+  location:{hash:'#risk'},history:{replaceState(){}},
   addEventListener(){},scrollTo(){},
   FormData:class{constructor(form){this.values=form.values;}[Symbol.iterator](){return Object.entries(this.values)[Symbol.iterator]();}}
 };

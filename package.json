@@ -2,18 +2,25 @@
   "name": "motor-vision",
   "version": "1.0.0",
   "private": true,
+  "description": "Run the backend from backend/ and the website from frontend/ (see README).",
   "scripts": {
+<<<<<<< HEAD
     "dev": "node --watch backend/server.js",
     "start": "node backend/server.js",
     "check": "node --check frontend/js/recommendation-ui.js && node --check backend/services/recommendation-model.js && node --check frontend/js/about.js && node --check frontend/js/app.js && node --check frontend/js/auth-ui.js && node --check backend/server.js && node --check backend/services/auth.js && node --check backend/services/mailer.js && node --check frontend/js/risk-engine.js && node --check frontend/js/risk-data.js && node --check frontend/js/risk-ui.js && node --check backend/services/listing-import.js && node --check frontend/js/listing-link-ui.js && node --check frontend/js/valuation-ui.js && node --check frontend/js/price-engine.js",
     "test:recommendations": "node tests/integration/recommendation-model.test.cjs",
     "test:recommendation-ui": "node tests/frontend/recommendation-ui.test.cjs",
+=======
+    "dev": "echo \"Open two terminals and run: npm run dev:backend  |  npm run dev:frontend\" && exit 1",
+    "start": "echo \"Open two terminals and run: npm run start:backend  |  npm run start:frontend\" && exit 1",
+    "dev:backend": "npm --prefix backend run dev",
+    "dev:frontend": "npm --prefix frontend run dev",
+    "start:backend": "npm --prefix backend run start",
+    "start:frontend": "npm --prefix frontend run start",
+    "check": "npm --prefix backend run check && npm --prefix frontend run check",
+>>>>>>> 974c5c1186c8d412dc56a9f9b41890d904011d40
     "test:about": "node tests/frontend/about.test.cjs",
-    "test": "node tests/frontend/smoke-test.cjs && node tests/frontend/auth-ui.test.cjs && node tests/backend/auth.test.cjs && node tests/integration/listing-import.test.cjs && node tests/frontend/price-engine.test.cjs && node tests/frontend/valuation-ui.test.cjs"
-  },
-  "dependencies": {
-    "dotenv": "^17.2.3",
-    "mongodb": "^6.21.0",
-    "nodemailer": "^10.2.0"
+    "test:risk-model": "node tests/integration/risk-model.test.cjs",
+    "test": "node tests/frontend/smoke-test.cjs && node tests/frontend/about.test.cjs && node tests/integration/listing-import.test.cjs && node tests/integration/risk-model.test.cjs"
   }
 }
