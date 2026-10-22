@@ -72,6 +72,8 @@ The Node backend should remain the public application boundary and validate/auth
 
 Visitors can browse the public website without an account. Submitting forms, importing advertisements, running assessments or valuations, saving/comparing vehicles, and exporting results opens the sign-in dialog. Users can create an account, sign in, sign out, and request a one-time password-reset email.
 
+The same dialog supports Google and Apple OAuth. After sign-in, the header shows a round avatar that opens an optional profile form (display name, phone, district and short bio). Social accounts are matched to an existing account by verified email, so the user does not get a duplicate account when both methods use the same address.
+
 Passwords are hashed with Node.js `scrypt`. The readable password is never stored. Sessions use signed, `HttpOnly`, `SameSite=Lax` cookies and are invalidated when the password changes. Local user records are stored in the ignored `backend/data/users.json` file; use a managed database before deploying multiple server instances or production workloads.
 
 Create the local configuration without committing it:
@@ -93,6 +95,36 @@ MAIL_FROM=your-address@gmail.com
 ```
 
 Use the Google App Password—not the normal Gmail account password. `.env` and the user store are excluded by `.gitignore`.
+
+### Google and Apple sign-in setup
+
+For Google, create an OAuth **Web application** client and register this exact authorized redirect URI:
+
+```text
+http://localhost:3000/api/auth/oauth/google/callback
+```
+
+Then add its values to `.env`:
+
+```dotenv
+GOOGLE_CLIENT_ID=your-google-web-client-id
+GOOGLE_CLIENT_SECRET=your-google-web-client-secret
+```
+
+For Apple, create and configure a **Services ID**, registered website domain and return URL. Apple web sign-in uses a deployed HTTPS domain; replace `APP_URL` with that public origin and register this return URL:
+
+```text
+https://your-domain.example/api/auth/oauth/apple/callback
+```
+
+Add the Services ID and generated Apple client-secret JWT to `.env`:
+
+```dotenv
+APPLE_CLIENT_ID=your-apple-services-id
+APPLE_CLIENT_SECRET=your-generated-apple-client-secret-jwt
+```
+
+Restart the Node server after changing `.env`. OAuth secrets belong only in `.env`; never put them in frontend JavaScript or commit them.
 
 ## Individual component: IT23380400
 

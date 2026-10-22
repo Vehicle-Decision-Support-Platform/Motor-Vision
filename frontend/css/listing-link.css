@@ -1,20 +1,20 @@
-.listing-link-form{margin:20px 0 22px;padding:18px;background:#f0f8f7;border:1px solid #d7e9e5;border-radius:12px;text-align:left}
+.listing-link-form{margin:20px 0 22px;padding:18px;background:#f5f7fa;border:1px solid #e1e6ec;border-radius:12px;text-align:left}
 .link-form-heading{display:flex;gap:10px;align-items:flex-start;margin-bottom:17px}
 .link-form-heading>span{display:grid;place-items:center;width:30px;height:30px;flex-shrink:0;background:#dceee9;border-radius:9px;color:#087c80;font-size:21px}
-.link-form-heading h3{font-size:14px;margin:0 0 4px;color:#173544}
+.link-form-heading h3{font-size:14px;margin:0 0 4px;color:#1a222c}
 .link-form-heading p,.link-form-help{font-size:12px!important;line-height:1.7!important;margin:0!important;color:#677d87!important}
 .listing-link-form label{display:block;font-size:12px;font-weight:600;color:#36535e;margin-bottom:7px}
 .listing-link-form input{box-sizing:border-box;width:100%;min-width:0;border:1px solid #c9dcd9;border-radius:7px;background:#fff;padding:11px 10px;font:12px 'DM Sans',Arial;color:#183344}
-.listing-link-form input:focus{outline:2px solid #087d80;outline-offset:2px}
+.listing-link-form input:focus{outline:2px solid var(--navy);outline-offset:2px}
 .listing-link-form>.primary{display:flex;align-items:center;justify-content:space-between;width:100%;margin:10px 0;font-size:13px;padding:11px 13px}
 .listing-link-form button:disabled{opacity:.65;cursor:wait}
 .link-form-help{margin-top:9px!important}
-.link-progress{font-size:12px!important;color:#087d80!important;line-height:1.7!important}
+.link-progress{font-size:12px!important;color:var(--navy)!important;line-height:1.7!important}
 .listing-link-form .form-error{padding:10px;font-size:12px;overflow-wrap:anywhere}
-.link-review{border:1px solid #d7e9e5;background:#f0f8f7;border-radius:14px;padding:22px 25px;margin-bottom:22px}
+.link-review{border:1px solid #e1e6ec;background:#f5f7fa;border-radius:14px;padding:22px 25px;margin-bottom:22px}
 .link-review-top{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;flex-wrap:wrap}
-.link-review h2{font-size:18px;margin:7px 0;color:#173544}
-.link-review a,.import-source a{color:#087d80;text-underline-offset:3px;font-weight:600}
+.link-review h2{font-size:18px;margin:7px 0;color:#1a222c}
+.link-review a,.import-source a{color:var(--navy);text-underline-offset:3px;font-weight:600}
 .link-review ul{padding-left:20px;margin:12px 0 0;color:#586e79;font-size:13px;line-height:1.8}
 .link-review p{color:#586e79;font-size:13px;line-height:1.7;margin:7px 0}
 .field.needs-review input{border-color:#bc8a35;background:#fffcf2}
@@ -39,3 +39,10 @@
 #valuation-form .primary:disabled{opacity:.55;cursor:not-allowed}
 @media(max-width:600px){.listing-link-entry{grid-template-columns:1fr}.valuation-link-form{padding:18px}.listing-link-entry .primary{width:100%;text-align:center}}
 @media(max-width:600px){.listing-link-form{padding:14px}.link-review{padding:18px}.link-review h2{font-size:16px}}
+
+/* Neutral surfaces and red actions balance with the navy/red logo. */
+.listing-link-form,.link-review{background:#f5f7fa;border-color:#dfe5eb}
+.link-form-heading>span{background:var(--brand-red-soft);color:var(--brand-red)}
+.listing-link-form input:focus{outline-color:var(--brand-red)}
+.link-review a,.import-source a,.link-progress{color:var(--brand-red)!important}
+.link-form-heading h3,.link-review h2{color:var(--navy)}

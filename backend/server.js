@@ -12,7 +12,8 @@ const publicFiles=new Set([
   'index.html',
   'css/style.css','css/risk.css','css/listing-link.css','css/valuation.css','css/auth.css',
   'js/app.js','js/risk-engine.js','js/risk-data.js','js/risk-ui.js',
-  'js/listing-link-ui.js','js/valuation-ui.js','js/price-engine.js','js/auth-ui.js'
+  'js/listing-link-ui.js','js/valuation-ui.js','js/price-engine.js','js/auth-ui.js',
+  ...['logo.svg','logo-light.svg','logo-mark.svg','logo-mark-light.svg','wordmark-light.svg','favicon.svg','favicon.png','favicon-192.png','apple-touch-icon.png'].map(file=>'assets/images/'+file)
 ]);
 function json(res,status,value){res.writeHead(status,{'Content-Type':'application/json; charset=utf-8'});res.end(JSON.stringify(value));}
 function readBody(req){return new Promise((resolve,reject)=>{
@@ -43,11 +44,11 @@ function createServer({preview=previewListing,auth=defaultAuth}={}){
       return;
     }
     if(!['GET','HEAD'].includes(req.method)){res.writeHead(405);return res.end();}
-    const name=pathname==='/'?'index.html':pathname.slice(1);
+    const name=pathname==='/'?'index.html':pathname==='/favicon.ico'?'assets/images/favicon.png':pathname.slice(1);
     if(!publicFiles.has(name)){res.writeHead(404);return res.end('Not found');}
     fs.readFile(path.join(frontendRoot,name),(err,data)=>{
       if(err){res.writeHead(404);return res.end('Not found');}
-      res.setHeader('Content-Type',({'.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.js':'text/javascript; charset=utf-8'})[path.extname(name)]);
+      res.setHeader('Content-Type',({'.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.js':'text/javascript; charset=utf-8','.png':'image/png','.svg':'image/svg+xml'})[path.extname(name)]);
       res.end(req.method==='HEAD'?undefined:data);
     });
   });
