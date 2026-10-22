@@ -54,10 +54,23 @@ def assess(data):
         limitation='Trained on heuristic weak labels; probability is not verified fraud probability.')
     return result
 
+health = None
 for line in sys.stdin:
     try:
         request = json.loads(line)
-        response = {'id': request['id'], 'result': assess(request['listing'])}
+        if request.get('action') == 'status':
+            if health is None:
+                probe = assess(dict(make='Toyota', model='Aqua', year=2016, mileage=80000,
+                    price=10000000, engine='1500 cc', fuel='Hybrid', transmission='Automatic',
+                    photoCount=8, description='Original registration documents available'))
+                health = dict(ready=True, modelVersion=MODEL_VERSION,
+                    capabilities={'lightgbm': bool(probe['models']['lightgbm']),
+                        'logreg': bool(probe['models']['logreg']),
+                        'explanations': bool(probe['models']['lightgbm']['shap_raw']) and bool(probe['models']['lightgbm']['lime'])})
+            result = health
+        else:
+            result = assess(request['listing'])
+        response = {'id': request['id'], 'result': result}
     except Exception as error:
         response = {'id': request.get('id') if 'request' in locals() else None, 'error': str(error)}
     print(json.dumps(response, allow_nan=False), flush=True)

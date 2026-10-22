@@ -8,6 +8,10 @@ const {createServer}=require('../../backend/server');
   const listing={make:'Toyota',model:'Aqua',year:2016,mileage:80000,price:10000000,engine:'1500 cc',fuel:'Hybrid',transmission:'Automatic',photoCount:8,description:'Original registration documents and service records available',listingAgeDays:10};
   async function post(data,headers={}){return fetch(base+'/api/risk/assess',{method:'POST',headers:{'Content-Type':'application/json',...headers},body:JSON.stringify(data)});}
   try{
+    const statusResponse=await fetch(base+'/api/risk/status');assert.equal(statusResponse.status,200);
+    const status=await statusResponse.json();assert.equal(status.ready,true);
+    assert.deepEqual(status.capabilities,{lightgbm:true,logreg:true,explanations:true});
+    assert.equal((await fetch(base+'/api/risk/status',{headers:{'Sec-Fetch-Site':'cross-site'}})).status,403);
     assert.equal((await post(listing,{Origin:'https://evil.test'})).status,403);
     assert.equal((await post(listing,{'Content-Type':'text/plain'})).status,415);
     const response=await post(listing);assert.equal(response.status,200);
@@ -19,6 +23,7 @@ const {createServer}=require('../../backend/server');
     assert(Number.isFinite(result.models.lightgbm.lime_fidelity));
     assert(result.market.fair_price_lkr>0);
     assert.match(result.modelVersion,/^lightgbm-/);
+    assert.equal(result.modelVersion,status.modelVersion);
     const cheap=await (await post({...listing,engine:'1.5 L',price:3000000})).json();
     assert.equal(cheap.features.engine_cc,1500);
     assert(cheap.models.lightgbm.probability>result.models.lightgbm.probability);

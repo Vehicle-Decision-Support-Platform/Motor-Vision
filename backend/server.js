@@ -7,7 +7,7 @@ const {previewListing,ListingError} = require('./services/listing-import');
 const {createAuthService,createUserStore} = require('./services/auth');
 const {createMailer} = require('./services/mailer');
 const defaultAuth=createAuthService({store:createUserStore(),sendResetEmail:createMailer()});
-const {assessRisk}=require('./services/risk-model');
+const {assessRisk,modelStatus}=require('./services/risk-model');
 const frontendRoot=path.join(__dirname,'..','frontend');
 const publicFiles=new Set([
   'index.html',
@@ -27,6 +27,13 @@ function createServer({preview=previewListing,auth=defaultAuth}={}){
     res.setHeader('Referrer-Policy','strict-origin-when-cross-origin');res.setHeader('X-Frame-Options','DENY');
     let pathname;try{pathname=decodeURIComponent(new URL(req.url,'http://localhost').pathname);}catch{res.writeHead(400);return res.end('Invalid URL');}
     if(pathname.startsWith('/api/auth/')){try{return await auth.handle(req,res,pathname);}catch{return json(res,500,{error:'Authentication service is unavailable.'});}}
+    if(pathname==='/api/risk/status'){
+      if(req.method!=='GET')return json(res,405,{error:'Use GET.'});
+      const host=req.headers.host;
+      if(!/^(localhost|127\.0\.0\.1)(:\d+)?$/.test(host||'')||req.headers['sec-fetch-site']==='cross-site')return json(res,403,{error:'Use the local Motor Vision application.'});
+      try{return json(res,200,await modelStatus());}
+      catch(error){return json(res,503,{ready:false,error:error.message});}
+    }
     if(pathname==='/api/risk/assess'){
       if(req.method!=='POST')return json(res,405,{error:'Use POST.'});
       if(!/^application\/json(?:;|$)/i.test(req.headers['content-type']||''))return json(res,415,{error:'Send application/json.'});
