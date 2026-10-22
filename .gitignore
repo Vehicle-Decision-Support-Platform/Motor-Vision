@@ -5,3 +5,5 @@ backend/data/users.json
 backend/data/*.tmp
 __pycache__/
 *.py[cod]
+# Original inference source was overwritten; preserve the recovered runtime.
+!ml-api/risk_runtime/core.pyc
