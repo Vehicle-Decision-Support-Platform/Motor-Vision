@@ -42,7 +42,7 @@ const index = fs.readFileSync(path.join(root, 'frontend/index.html'), 'utf8');
 assert.equal((index.match(/data-page="about"/g) || []).length, 2, 'Header and footer links');
 
 (async () => {
-  const server = require('../../backend/server').createServer();
+  const server = require('../../frontend/server').createServer();
   try {
     await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
     const base = `http://127.0.0.1:${server.address().port}`;

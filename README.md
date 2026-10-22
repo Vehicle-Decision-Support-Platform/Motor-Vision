@@ -25,14 +25,15 @@ The current repository contains working browser prototypes for Components 1 and 
 ```text
 Motor-Vision/
 ├── frontend/
+│   ├── server.js                # Website server: static files + /api proxy (port 3000)
 │   ├── index.html
 │   ├── css/                     # Existing styles, unchanged apart from paths
 │   ├── js/                      # Existing UI, browser engines, and fixtures
 │   ├── components/              # Component-specific expansion points
 │   └── assets/                  # Images and icons
 ├── backend/
-│   ├── server.js                # Node HTTP/static server and API entry point
-│   ├── services/listing-import.js
+│   ├── server.js                # Backend API server (port 4000)
+│   ├── services/                # auth, mailer, listing-import
 │   ├── routes/ controllers/ middleware/ config/ utils/
 ├── ai-models/
 │   ├── component-1-price/{models,training}/
@@ -41,31 +42,42 @@ Motor-Vision/
 │   └── component-4-affordability/{models,training}/
 ├── ml-api/{routers,services,schemas}/
 ├── datasets/{raw,processed}/
-├── tests/{frontend,backend,integration}/
 └── docs/
 ```
 
 Directories reserved for future work are deliberately empty. No trained model, prediction, dataset, database, or placeholder endpoint is represented as implemented.
 
 
-## Run the frontend
+## Run the backend and frontend
 
-Requires Node.js 20 or newer. No dependency installation is needed.
+Requires Node.js 20 or newer. The backend API and the website are separate Node packages, each with its own `package.json` and `node_modules`, and run as two separate servers:
+
+| Server | Folder | Address |
+|---|---|---|
+| Backend API | `backend/` | http://localhost:4000 (`API_PORT`) |
+| Website | `frontend/` | http://localhost:3000 (`FRONTEND_PORT`) |
+
+Install and run each one in its own terminal:
 
 ```sh
-npm install
-npm start
+npm --prefix backend install
+npm run dev:backend     # API on :4000
 ```
 
-`npm install` is optional at present because the project has no external Node dependencies; it is included as the conventional setup step. Open http://localhost:3000. The site opens on the Home page; the header links to each component, with the risk pages grouped under **Risk assessment** (a menu button replaces the links on narrow screens). Run `npm run check` for JavaScript syntax validation.
+```sh
+npm --prefix frontend install
+npm run dev:frontend    # website on :3000
+```
 
-Both `npm run dev` and `npm start` also work from the outer workspace folder. Run `npm test` for the risk-engine and frontend smoke tests. No npm dependencies are required.
+`npm start` runs a server without watch mode. Open http://localhost:3000 and stop each server with **Ctrl+C**. Both read the shared `.env` in the project root.
 
-Use `npm run dev` during development: Node watch mode restarts the server when its code or imported backend modules change. Static HTML/CSS/JS is read on each request. `npm start` runs without watching. A server started before this change needs one restart to enable watch mode.
+The website server serves `frontend/` and forwards every `/api/*` request to `API_URL` (default http://localhost:4000), keeping the browser's host. The browser therefore talks to one origin: session cookies, the same-origin checks, the OTP reset and the OAuth redirects work without CORS. Keep `APP_URL` set to the website address (http://localhost:3000). If the API is not running, API calls return a message saying so. `GET /api/health` reports whether the API is up and which account store it uses.
+
+The site opens on the Home page; the header links to each component, with the risk pages grouped under **Risk assessment** (a menu button replaces the links on narrow screens). Run `npm run check` for JavaScript syntax validation.
 
 ## Application boundaries and future ML integration
 
-The browser loads static files from `frontend/` and calls the Node backend with same-origin HTTP requests. `backend/server.js` currently serves those allow-listed files and owns `POST /api/listings/preview`; advertisement retrieval stays server-side so browser code never performs it directly.
+The browser loads static files from the website server (`frontend/server.js`), which forwards `/api/*` to the Node backend API (`backend/server.js`). The backend owns the auth endpoints and `POST /api/listings/preview`; advertisement retrieval stays server-side so browser code never performs it directly.
 
 Future trained `.pkl` or `.joblib` artifacts belong in the corresponding `ai-models/component-*/models/` directory, with reproducible training code in its sibling `training/` directory. Raw and processed research data belong under `datasets/`; do not commit private, licensed, or oversized data without an explicit data-management decision.
 
@@ -207,4 +219,4 @@ SHAP/LIME inference, calibrated models, explanation fidelity/stability, PR-AUC/r
 
 `frontend/js/risk-data.js` holds six synthetic fixtures, including a normal listing, multiple-signal high-risk examples, an ordinary listing incorrectly flagged by the baseline, and a relocation bargain. Prices and labels are invented demonstrations. Do not treat these fixtures as listings from Ikman, Riyasewana or Patpat.
 
-Source: `frontend/index.html`, `frontend/css/`, and `frontend/js/`. `backend/server.js` serves the local app and advertisement-preview API on loopback; `backend/services/listing-import.js` implements guarded server-side listing retrieval and parsing. SVG vehicle illustrations are original; Google Fonts have local fallbacks.
+Source: `frontend/index.html`, `frontend/css/`, and `frontend/js/`. `frontend/server.js` serves the website and `backend/server.js` serves the API on loopback; `backend/services/listing-import.js` implements guarded server-side listing retrieval and parsing. SVG vehicle illustrations are original; Google Fonts have local fallbacks.
