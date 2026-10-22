@@ -92,7 +92,7 @@ The Node backend should remain the public application boundary and validate/auth
 
 ## Authentication and password reset
 
-Visitors can browse the public website without an account. Submitting forms, importing advertisements, running assessments or valuations, saving/comparing vehicles, and exporting results opens the sign-in dialog. Users can create an account, sign in, sign out, and request a one-time password-reset email.
+Visitors can use the website without an account, including submitting forms, importing advertisements, running assessments or valuations, saving/comparing vehicles locally, and exporting results. Sign-in is optional and opens only when visitors choose the account controls. Users can still create an account, sign in, sign out, manage their own profile, and request a one-time password-reset email. Account and profile endpoints retain their authentication requirements.
 
 The same dialog supports Google and Apple OAuth. After sign-in, the header shows a round avatar that opens an optional profile form (display name, phone, district and short bio). Social accounts are matched to an existing account by verified email, so the user does not get a duplicate account when both methods use the same address.
 

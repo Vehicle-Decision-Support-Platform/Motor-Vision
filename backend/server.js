@@ -29,7 +29,6 @@ function createServer({preview=previewListing,auth=defaultAuth}={}){
       catch(error){return json(res,error instanceof ListingError?error.status:503,{error:error.message});}
     }
     if(pathname==='/api/listings/preview'){
-      try{if(!await auth.userFromRequest(req))return json(res,401,{error:'Sign in to import an advertisement.'});}catch{return json(res,500,{error:'Authentication service is unavailable.'});}
       if(req.method!=='POST'){res.setHeader('Allow','POST');return json(res,405,{error:'Use POST to preview a listing.'});}
       if(!/^application\/json(?:;|$)/i.test(req.headers['content-type']||''))return json(res,415,{error:'Send application/json.'});
       const host=req.headers.host;

@@ -55,7 +55,7 @@ async function backend(){
   await assert.rejects(fetchHtml(adUrl,{lookup,request:transport({headers:{'content-type':'application/json'}})}),/advertisement page/);
   await assert.rejects(fetchHtml(adUrl,{lookup,request:transport({body:'x'.repeat(200)}),maxBytes:100}),/too large/);
   await assert.rejects(fetchHtml(adUrl,{lookup,request:transport({hang:true}),timeoutMs:25}),/too long/);
-  const auth={userFromRequest:async()=>({id:'test-user'}),store:{name:'test store'}};
+  const auth={userFromRequest:async()=>{throw new Error('Guest listing import must not depend on account availability.');},store:{name:'test store'}};
   const server=createApiServer({preview:async value=>{validateListingUrl(value);return preview;},auth}),website=createFrontendServer();
   await Promise.all([new Promise(resolve=>server.listen(0,'127.0.0.1',resolve)),new Promise(resolve=>website.listen(0,'127.0.0.1',resolve))]);
   const base='http://127.0.0.1:'+server.address().port,webBase='http://127.0.0.1:'+website.address().port;
