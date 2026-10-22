@@ -1,32 +1,48 @@
 <!doctype html>
 <html lang="en">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#101e30"><meta name="description" content="Explainable AI-Based Vehicle Risk Assessment System for Sri Lanka's used-vehicle market."><title>Explainable AI-Based Vehicle Risk Assessment System | Motor Vision</title><link rel="stylesheet" href="css/style.css?v=price-proposal-1"><link rel="stylesheet" href="css/risk.css?v=price-proposal-1"><link rel="stylesheet" href="css/listing-link.css?v=price-proposal-1"><link rel="stylesheet" href="css/valuation.css?v=price-proposal-1"></head>
-<body data-build="price-proposal-1">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#101e30"><meta name="description" content="Motor Vision: vehicle price evaluation, explainable risk assessment and affordability insights for Sri Lanka's used-vehicle market."><title>Motor Vision | Used-vehicle decision support for Sri Lanka</title><link rel="stylesheet" href="css/style.css?v=website-1"><link rel="stylesheet" href="css/risk.css?v=website-1"><link rel="stylesheet" href="css/listing-link.css?v=website-1"><link rel="stylesheet" href="css/valuation.css?v=website-1"><link rel="stylesheet" href="css/auth.css?v=auth-1"></head>
+<body data-build="website-1">
 <a href="#page-content" class="skip-link">Skip to content</a>
-<aside class="sidebar">
-  <a class="brand" href="#risk"><span class="brand-icon">M<span>V</span></span><span>MOTOR<span class="brand-light">VISION</span><small>DRIVE WITH CLARITY</small></span></a>
-  <div class="nav-caption">EXPLAINABLE AI SYSTEM</div>
-  <nav aria-label="Risk assessment">
-    <button data-page="risk" class="active" title="Explainable AI-Based Vehicle Risk Assessment System"><span class="nav-icon">◈</span><span>AI Vehicle Risk<br>Assessment</span></button>
-    <button data-page="assess"><span class="nav-icon">⌕</span><span>Assess a listing</span></button>
-    <button data-page="risk-history"><span class="nav-icon">↶</span><span>Assessment history</span></button>
-    <button data-page="model-lab"><span class="nav-icon">▥</span><span>Model evaluation</span></button>
-    <button data-page="risk-data"><span class="nav-icon">⇆</span><span>Data & integration</span></button>
-  </nav>
-  <div class="nav-caption platform-caption">PLATFORM TOOLS</div>
-  <nav aria-label="Other platform tools">
-    <button data-page="overview"><span class="nav-icon">◫</span><span>Overview</span></button>
-    <button data-page="explore"><span class="nav-icon">▧</span><span>Explore vehicles</span></button>
-    <button data-page="valuation"><span class="nav-icon">◇</span><span>Price evaluation</span></button>
-    <button data-page="compare"><span class="nav-icon">⇄</span><span>Compare vehicles</span><b id="compare-count">0</b></button>
-    <button data-page="affordability"><span class="nav-icon">▤</span><span>Affordability</span></button>
-    <button data-page="saved"><span class="nav-icon">♡</span><span>Saved vehicles</span><b id="saved-count">0</b></button>
-  </nav>
-  <div class="sidebar-bottom"><div class="insight-icon">✧</div><h3>Every score.<br>A clearer explanation.</h3><p>Understand the signals behind a listing before your next move.</p><span class="country">SRI LANKA · USED-VEHICLE INSIGHTS</span></div>
-  <div class="profile"><span class="avatar">MV</span><div>Risk assessment<small>Component 03 · IT23380400</small></div></div>
-</aside>
-<main><header><div class="breadcrumb">Workspace <span>/</span> <strong id="breadcrumb">Risk dashboard</strong></div><div class="header-right"><span class="demo-pill"><i></i> Risk system · v0.4</span><span class="avatar">MV</span></div></header>
-<div class="content"><section id="intro"><div class="eyebrow">COMPONENT 03 · VEHICLE RISK INTELLIGENCE</div><h1 class="system-title">Explainable AI-Based Vehicle <span>Risk Assessment System</span></h1><p>Assess a used-vehicle listing, understand its risk score, and see the reasons behind each signal.</p></section><div id="page-content" tabindex="-1"></div><footer><span>© 2026 Motor Vision</span><span id="footer-component">Explainable risk assessment · Component 03</span><span id="footer-mode">Prototype rules · Synthetic sample listings</span></footer></div>
-</main><dialog id="detail"><button class="close" aria-label="Close vehicle details">×</button><div id="detail-content"></div></dialog><div id="toast" role="status"></div>
-<script src="js/risk-engine.js?v=price-proposal-1"></script><script src="js/risk-data.js?v=price-proposal-1"></script><script src="js/listing-link-ui.js?v=price-proposal-1"></script><script src="js/risk-ui.js?v=price-proposal-1"></script><script src="js/price-engine.js?v=price-proposal-1"></script><script src="js/valuation-ui.js?v=price-proposal-1"></script><script src="js/app.js?v=price-proposal-1"></script>
+<header class="site-header" id="site-header">
+  <div class="header-inner">
+    <a class="brand" href="#overview"><span class="brand-icon">M<span>V</span></span><span>MOTOR<span class="brand-light">VISION</span><small>DRIVE WITH CLARITY</small></span></a>
+    <button class="menu-toggle" data-menu="site-header" aria-expanded="false" aria-controls="site-nav" aria-label="Menu"><span></span></button>
+    <nav class="site-nav" id="site-nav" aria-label="Main">
+      <button data-page="overview">Home</button>
+      <div class="nav-group" id="risk-menu">
+        <button class="nav-trigger" data-menu="risk-menu" aria-expanded="false" aria-controls="risk-submenu">Risk assessment <i aria-hidden="true">▾</i></button>
+        <div class="submenu" id="risk-submenu">
+          <button data-page="risk"><span class="nav-icon">◈</span><span>Risk dashboard<small>Review queue and explanation reports</small></span></button>
+          <button data-page="assess"><span class="nav-icon">⌕</span><span>Assess a listing<small>Paste an ad link or enter details</small></span></button>
+          <button data-page="risk-history"><span class="nav-icon">↶</span><span>Assessment history<small>Results saved in this browser</small></span></button>
+          <button data-page="model-lab"><span class="nav-icon">▥</span><span>Model evaluation<small>Precision, recall and false alarms</small></span></button>
+          <button data-page="risk-data"><span class="nav-icon">⇆</span><span>Data &amp; integration<small>Import and export listing JSON</small></span></button>
+        </div>
+      </div>
+      <button data-page="valuation">Price evaluation</button>
+      <button data-page="explore">Explore</button>
+      <button data-page="compare">Compare <b id="compare-count">0</b></button>
+      <button data-page="affordability">Affordability</button>
+      <button data-page="saved">Saved <b id="saved-count">0</b></button>
+    </nav>
+    <button class="auth-account" id="auth-account" type="button" aria-haspopup="dialog"><span class="auth-account-icon" aria-hidden="true">○</span><span id="auth-account-label">Sign in</span></button>
+    <button class="primary header-cta" data-page="assess">Check a listing</button>
+  </div>
+</header>
+<main>
+  <section class="page-hero" id="page-hero"><div class="page-hero-inner"><div class="breadcrumb"><button data-page="overview">Home</button><span>/</span><strong id="breadcrumb">Overview</strong></div><div id="intro"></div></div></section>
+  <div id="page-content" tabindex="-1"></div>
+</main>
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-brand"><a class="brand" href="#overview"><span class="brand-icon">M<span>V</span></span><span>MOTOR<span class="brand-light">VISION</span><small>DRIVE WITH CLARITY</small></span></a><p>Vehicle market intelligence for Sri Lanka's used-car buyers: price evaluation, explainable risk signals and affordability insights.</p><span class="footer-pill"><i></i> Research prototype · Synthetic sample data</span></div>
+    <div class="footer-links"><h4>Risk assessment</h4><button data-page="risk">Risk dashboard</button><button data-page="assess">Assess a listing</button><button data-page="risk-history">Assessment history</button><button data-page="model-lab">Model evaluation</button><button data-page="risk-data">Data &amp; integration</button></div>
+    <div class="footer-links"><h4>Platform</h4><button data-page="valuation">Price evaluation</button><button data-page="explore">Explore vehicles</button><button data-page="compare">Compare vehicles</button><button data-page="affordability">Affordability</button><button data-page="saved">Saved vehicles</button></div>
+    <div class="footer-links"><h4>Research components</h4><span>01 · Price evaluation</span><span>02 · Feature recommendation</span><span>03 · Risk assessment</span><span>04 · Affordability</span></div>
+  </div>
+  <div class="footer-bottom"><span>© 2026 Motor Vision · Sri Lanka</span><span id="footer-component">Motor Vision · Decision support</span><span id="footer-mode">Prototype rules · Synthetic sample listings</span></div>
+</footer>
+<dialog id="detail"><button class="close" aria-label="Close vehicle details">×</button><div id="detail-content"></div></dialog><div id="toast" role="status"></div>
+<dialog id="auth-dialog" class="auth-dialog" aria-labelledby="auth-title"><div id="auth-content"></div></dialog>
+<script src="js/auth-ui.js?v=auth-1"></script><script src="js/risk-engine.js?v=website-1"></script><script src="js/risk-data.js?v=website-1"></script><script src="js/listing-link-ui.js?v=website-1"></script><script src="js/risk-ui.js?v=website-1"></script><script src="js/price-engine.js?v=website-1"></script><script src="js/valuation-ui.js?v=website-1"></script><script src="js/app.js?v=website-1"></script>
 </body></html>
