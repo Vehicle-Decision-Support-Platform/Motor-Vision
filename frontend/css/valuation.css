@@ -36,7 +36,7 @@
 .price-band{padding:19px 25px;background:#fafcfd;border-bottom:1px solid #e8eef0;display:flex;flex-direction:column;gap:7px}
 .price-band>span{font-size:10px;color:#7e929f}.price-band strong{font-size:12px;line-height:1.8;color:#4b6573}.price-band small{font-size:9px;color:#97a5ae;line-height:1.8}
 .price-recommendation{padding:24px 25px;border-bottom:1px solid #e8eef0}.price-recommendation .tag{font-size:8px}.price-recommendation p{font-size:12px;line-height:1.9;color:#69828b;margin:13px 0 0}
-.price-method{padding:20px 25px}.price-method summary{font-size:11px;color:#16857e;cursor:pointer}.price-method p,.price-method li{font-size:10px;line-height:1.9;color:#81949e}.price-method ul{padding-left:17px}
+.price-method{padding:20px 25px}.price-method summary{font-size:11px;color:var(--brand-red);cursor:pointer}.price-method p,.price-method li{font-size:10px;line-height:1.9;color:#81949e}.price-method ul{padding-left:17px}
 .price-method-grid{display:grid;grid-template-columns:1fr 1fr;gap:17px 10px;background:#f5f8f9;padding:15px;border-radius:7px;margin:17px 0}
 .price-method-grid small{display:block;font-size:9px;color:#8b9da7;margin-bottom:7px}.price-method-grid strong{font-size:10px;color:#526d79;overflow-wrap:anywhere}
 .price-report-actions{display:flex;gap:11px;align-items:center;flex-wrap:wrap;padding:6px 25px 22px}.price-report-actions .secondary{font-size:10px;padding:10px 13px}.price-report-actions .text-button{font-size:10px}.price-report-actions button:disabled{opacity:.45;cursor:not-allowed}
@@ -45,6 +45,15 @@
 .price-table-heading{display:flex;justify-content:space-between;align-items:center;gap:15px;flex-wrap:wrap}.price-table-heading h2{font:800 17px/1.7 Manrope,Arial;margin:0}.price-table-heading p{font-size:11px;line-height:1.8}
 .price-table-scroll{max-width:100%;overflow-x:auto;margin-top:20px}.price-model-table table{border-collapse:collapse;width:100%;min-width:680px;text-align:left;font-size:11px}.price-model-table th,.price-model-table td{padding:16px 12px;border-bottom:1px solid #e8eef0;white-space:nowrap}.price-model-table thead th{font-size:9px;letter-spacing:.7px;color:#8c9da7;font-weight:500;background:#f8fafb}.price-model-table tbody th{font-weight:600;color:#365463}.price-model-table td{color:#718892}.price-model-table small{display:block;font-size:9px;color:#91a0a9;line-height:1.7;font-weight:400;margin-top:6px}.price-model-table tr.price-model-selected{background:#eef7f3}.price-model-table .notice{margin:17px 0 0}
 .price-report-import{margin-top:21px}.price-report-import h2{font:800 20px/1.5 Manrope,Arial;margin:14px 0 10px}.price-report-import>p{max-width:850px;font-size:12px;line-height:1.9}.price-report-import textarea{font:11px/1.8 Consolas,monospace;background:#fafcfd;min-height:210px;max-width:100%;width:100%;border:1px solid #dce5e9;border-radius:8px;padding:15px;resize:vertical;color:#58727f}.price-report-import .field{display:flex;flex-direction:column;margin:20px 0;gap:9px;font-size:12px}.price-report-import .field small{font-size:10px}
-.price-report-import>summary{cursor:pointer;font-size:12px;font-weight:600;color:#16857e;line-height:1.8}.price-report-import[open]>summary{margin-bottom:20px}
+.price-report-import>summary{cursor:pointer;font-size:12px;font-weight:600;color:var(--brand-red);line-height:1.8}.price-report-import[open]>summary{margin-bottom:20px}
 @media(max-width:1200px){.price-layout{grid-template-columns:1fr}.price-result-host{max-width:none}.price-model-summary{grid-template-columns:1fr}}
 @media(max-width:600px){.price-toolbar-actions{width:100%;justify-content:space-between}.price-tabs{width:100%}.price-tabs button{flex:1}.price-mode-row{padding:14px}.price-mode-row label{align-items:start;flex-direction:column;width:100%;gap:9px}.price-mode-row select{width:100%}.price-result-grid{padding:20px;gap:18px 10px}.price-report-heading,.price-fair-value,.price-recommendation,.price-method,.price-band{padding:20px}.price-result-grid strong{font-size:13px}.price-report-actions{padding-inline:20px}.price-report-meta{padding-inline:20px}.price-empty{padding:27px 22px}}
+
+/* Brand accents follow the Motor Vision logo; pricing states stay semantic. */
+.price-tabs{border-color:#dfe4e9;background:#f0f3f6}.price-tabs button.active{color:var(--brand-red);box-shadow:inset 0 -2px var(--brand-red),0 2px 7px #0f151d0a}
+.price-reference-note,.price-empty,.price-fair-value{background:#f5f7fa;border-color:#e0e6eb}
+.price-empty-symbol{background:var(--brand-red-soft);border-color:#f0cdd3;color:var(--brand-red)}
+.price-empty h2,.price-report-heading h2,.price-result-grid strong{color:var(--navy)}
+.price-fair-value strong{color:var(--brand-red)}
+.price-method summary,.price-report-import>summary{color:var(--brand-red)}
+.price-model-table tr.price-model-selected{background:var(--brand-red-soft)}

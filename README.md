@@ -1,4 +1,14 @@
 # Motor-Vision
+
+## Trained risk model connection
+
+Manual assessments and reviewed ad-link assessments now call the supplied trained
+LightGBM bundle through the Node backend and a persistent Python worker. Reports
+include SHAP, LIME and the Logistic Regression comparison. Start with `npm run dev`.
+See [Python runtime and model integration](ml-api/README.md) for setup, recovered
+Python 3.13 runtime requirements, input assumptions and verification commands.
+The synthetic sample queue and JSON batch imports still use the rule baseline.
+Earlier prototype descriptions below refer to that baseline unless stated otherwise.
 AI-powered vehicle market intelligence and decision support platform for Sri Lanka's used-car market: price evaluation, feature recommendation, explainable risk assessment, and affordability insights.
 
 ## Research components
@@ -15,14 +25,15 @@ The current repository contains working browser prototypes for Components 1 and 
 ```text
 Motor-Vision/
 ├── frontend/
+│   ├── server.js                # Website server: static files + /api proxy (port 3000)
 │   ├── index.html
 │   ├── css/                     # Existing styles, unchanged apart from paths
 │   ├── js/                      # Existing UI, browser engines, and fixtures
 │   ├── components/              # Component-specific expansion points
 │   └── assets/                  # Images and icons
 ├── backend/
-│   ├── server.js                # Node HTTP/static server and API entry point
-│   ├── services/listing-import.js
+│   ├── server.js                # Backend API server (port 4000)
+│   ├── services/                # auth, mailer, listing-import
 │   ├── routes/ controllers/ middleware/ config/ utils/
 ├── ai-models/
 │   ├── component-1-price/{models,training}/
@@ -31,31 +42,47 @@ Motor-Vision/
 │   └── component-4-affordability/{models,training}/
 ├── ml-api/{routers,services,schemas}/
 ├── datasets/{raw,processed}/
-├── tests/{frontend,backend,integration}/
 └── docs/
 ```
 
 Directories reserved for future work are deliberately empty. No trained model, prediction, dataset, database, or placeholder endpoint is represented as implemented.
 
 
-## Run the frontend
+## Run the backend and frontend
 
-Requires Node.js 20 or newer. No dependency installation is needed.
+Requires Node.js 20 or newer. The backend API and the website are separate Node packages, each with its own `package.json` and `node_modules`, and run as two separate servers:
+
+| Server | Folder | Address |
+|---|---|---|
+| Backend API | `backend/` | http://localhost:4000 (`API_PORT`) |
+| Website | `frontend/` | http://localhost:3000 (`FRONTEND_PORT`) |
+
+Install dependencies once from the project root:
 
 ```sh
-npm install
-npm start
+npm --prefix backend install
+npm --prefix frontend install
 ```
 
-`npm install` is optional at present because the project has no external Node dependencies; it is included as the conventional setup step. Open http://localhost:3000. Run `npm run check` for JavaScript syntax validation.
+Start both listeners with one command from the project root (or outer workspace):
 
-Both `npm run dev` and `npm start` also work from the outer workspace folder. Run `npm test` for the risk-engine and frontend smoke tests. No npm dependencies are required.
+```sh
+npm run dev
+```
 
-Use `npm run dev` during development: Node watch mode restarts the server when its code or imported backend modules change. Static HTML/CSS/JS is read on each request. `npm start` runs without watching. A server started before this change needs one restart to enable watch mode.
+Open http://localhost:3000. One process owns the website on port 3000 and API on
+port 4000. **Ctrl+C** stops both; Node watch restarts them together when imported
+server code changes. `npm start` runs both without watching. Both read the shared
+`.env`. Stop any previously started separate servers before using the combined
+command. The separate `dev:backend` and `dev:frontend` commands remain available.
+
+The website server serves `frontend/` and forwards every `/api/*` request to `API_URL` (default http://localhost:4000), keeping the browser's host. The browser therefore talks to one origin: session cookies, the same-origin checks, the OTP reset and the OAuth redirects work without CORS. Keep `APP_URL` set to the website address (http://localhost:3000). If the API is not running, API calls return a message saying so. `GET /api/health` reports whether the API is up and which account store it uses.
+
+The site opens on the Home page; the header links to each component, with the risk pages grouped under **Risk assessment** (a menu button replaces the links on narrow screens). Run `npm run check` for JavaScript syntax validation.
 
 ## Application boundaries and future ML integration
 
-The browser loads static files from `frontend/` and calls the Node backend with same-origin HTTP requests. `backend/server.js` currently serves those allow-listed files and owns `POST /api/listings/preview`; advertisement retrieval stays server-side so browser code never performs it directly.
+The browser loads static files from the website server (`frontend/server.js`), which forwards `/api/*` to the Node backend API (`backend/server.js`). The backend owns the auth endpoints and `POST /api/listings/preview`; advertisement retrieval stays server-side so browser code never performs it directly.
 
 Future trained `.pkl` or `.joblib` artifacts belong in the corresponding `ai-models/component-*/models/` directory, with reproducible training code in its sibling `training/` directory. Raw and processed research data belong under `datasets/`; do not commit private, licensed, or oversized data without an explicit data-management decision.
 
@@ -68,9 +95,67 @@ Browser frontend → Node REST API → Python FastAPI ML service → versioned m
 
 The Node backend should remain the public application boundary and validate/authenticate requests. The future Python service should load component-specific artifacts, validate typed schemas, and return versioned predictions plus explanation metadata. Configure its internal URL with `ML_API_URL`; do not expose model files directly to the browser. `ml-api/main.py` and `ml-api/requirements.txt` are intentionally non-operational until a real inference contract and trained artifact exist.
 
+## Authentication and password reset
+
+Visitors can use the website without an account, including submitting forms, importing advertisements, running assessments or valuations, saving/comparing vehicles locally, and exporting results. Sign-in is optional and opens only when visitors choose the account controls. Users can still create an account, sign in, sign out, manage their own profile, and request a one-time password-reset email. Account and profile endpoints retain their authentication requirements.
+
+The same dialog supports Google and Apple OAuth. After sign-in, the header shows a round avatar that opens an optional profile form (display name, phone, district and short bio). Social accounts are matched to an existing account by verified email, so the user does not get a duplicate account when both methods use the same address.
+
+Passwords are hashed with Node.js `scrypt`. The readable password is never stored. Sessions use signed, `HttpOnly`, `SameSite=Lax` cookies and are invalidated when the password changes. Local user records are stored in the ignored `backend/data/users.json` file; use a managed database before deploying multiple server instances or production workloads.
+
+Create the local configuration without committing it:
+
+```sh
+cp .env.example .env
+openssl rand -hex 32
+```
+
+Put the generated value in `SESSION_SECRET`. For Gmail reset messages, enable 2-Step Verification on the sender Google Account, create a 16-character App Password, and set these values in `.env`:
+
+```dotenv
+APP_URL=http://localhost:3000
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=465
+SMTP_USER=your-address@gmail.com
+SMTP_APP_PASSWORD=your-16-character-app-password
+MAIL_FROM=your-address@gmail.com
+```
+
+Use the Google App Password—not the normal Gmail account password. `.env` and the user store are excluded by `.gitignore`.
+
+### Google and Apple sign-in setup
+
+For Google, create an OAuth **Web application** client and register this exact authorized redirect URI:
+
+```text
+http://localhost:3000/api/auth/oauth/google/callback
+```
+
+Then add its values to `.env`:
+
+```dotenv
+GOOGLE_CLIENT_ID=your-google-web-client-id
+GOOGLE_CLIENT_SECRET=your-google-web-client-secret
+```
+
+For Apple, create and configure a **Services ID**, registered website domain and return URL. Apple web sign-in uses a deployed HTTPS domain; replace `APP_URL` with that public origin and register this return URL:
+
+```text
+https://your-domain.example/api/auth/oauth/apple/callback
+```
+
+Add the Services ID and generated Apple client-secret JWT to `.env`:
+
+```dotenv
+APPLE_CLIENT_ID=your-apple-services-id
+APPLE_CLIENT_SECRET=your-generated-apple-client-secret-jwt
+```
+
+Restart the Node server after changing `.env`. OAuth secrets belong only in `.env`; never put them in frontend JavaScript or commit them.
+
 ## Individual component: IT23380400
 
-The default screen now implements the **Explainable AI-Based Vehicle Risk Assessment** component described in `IT23380400.pdf`, especially sections 3.3, 4.2 and 5.1. Other platform tools remain accessible from the second navigation group.
+The **Risk assessment** menu in the site header implements the **Explainable AI-Based Vehicle Risk Assessment** component described in `IT23380400.pdf`, especially sections 3.3, 4.2 and 5.1. Its pages open at `#risk`, `#assess`, `#risk-history`, `#model-lab` and `#risk-data`.
 
 - Risk dashboard: review queue with search, risk-category filtering, risk/price sorting, risk score and LOW/MEDIUM/HIGH category.
 - Explanation report: exact baseline point contributions, human-readable reasons, engineered features and verification checklist. Every displayed risk category is accompanied by a report.
@@ -139,4 +224,4 @@ SHAP/LIME inference, calibrated models, explanation fidelity/stability, PR-AUC/r
 
 `frontend/js/risk-data.js` holds six synthetic fixtures, including a normal listing, multiple-signal high-risk examples, an ordinary listing incorrectly flagged by the baseline, and a relocation bargain. Prices and labels are invented demonstrations. Do not treat these fixtures as listings from Ikman, Riyasewana or Patpat.
 
-Source: `frontend/index.html`, `frontend/css/`, and `frontend/js/`. `backend/server.js` serves the local app and advertisement-preview API on loopback; `backend/services/listing-import.js` implements guarded server-side listing retrieval and parsing. SVG vehicle illustrations are original; Google Fonts have local fallbacks.
+Source: `frontend/index.html`, `frontend/css/`, and `frontend/js/`. `frontend/server.js` serves the website and `backend/server.js` serves the API on loopback; `backend/services/listing-import.js` implements guarded server-side listing retrieval and parsing. SVG vehicle illustrations are original; Google Fonts have local fallbacks.

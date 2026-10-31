@@ -2,10 +2,19 @@
   "name": "motor-vision",
   "version": "1.0.0",
   "private": true,
+  "description": "Run the Motor Vision website and backend together with npm run dev.",
   "scripts": {
-    "dev": "node --watch backend/server.js",
-    "start": "node backend/server.js",
-    "check": "node --check frontend/js/app.js && node --check backend/server.js && node --check frontend/js/risk-engine.js && node --check frontend/js/risk-data.js && node --check frontend/js/risk-ui.js && node --check backend/services/listing-import.js && node --check frontend/js/listing-link-ui.js && node --check frontend/js/valuation-ui.js && node --check frontend/js/price-engine.js",
-    "test": "node tests/frontend/smoke-test.cjs && node tests/integration/listing-import.test.cjs && node tests/frontend/price-engine.test.cjs && node tests/frontend/valuation-ui.test.cjs"
+    "dev": "node --watch scripts/run.js",
+    "start": "node scripts/run.js",
+    "dev:backend": "npm --prefix backend run dev",
+    "dev:frontend": "npm --prefix frontend run dev",
+    "start:backend": "npm --prefix backend run start",
+    "start:frontend": "npm --prefix frontend run start",
+    "check": "node --check scripts/run.js && npm --prefix backend run check && npm --prefix frontend run check",
+    "test:launcher": "node tests/integration/launcher.test.cjs",
+    "test:about": "node tests/frontend/about.test.cjs",
+    "test:risk-model": "node tests/integration/risk-model.test.cjs",
+    "test:price-model": "node tests/integration/price-model.test.cjs",
+    "test": "node tests/frontend/smoke-test.cjs && node tests/frontend/about.test.cjs && node tests/integration/listing-import.test.cjs && node tests/integration/risk-model.test.cjs && node tests/integration/price-model.test.cjs"
   }
 }

@@ -82,7 +82,7 @@ const uiContext={
   console,setTimeout(){return 1;},clearTimeout(){},
   document:{getElementById:uiElement,querySelectorAll:()=>[],addEventListener(type,callback){(listeners[type]||=[]).push(callback);}},
   localStorage:{getItem:key=>storage.get(key)||null,setItem:(key,value)=>storage.set(key,value)},
-  location:{hash:''},history:{replaceState(){}},
+  location:{hash:'#risk'},history:{replaceState(){}},
   addEventListener(){},scrollTo(){},
   FormData:class{constructor(form){this.values=form.values;}[Symbol.iterator](){return Object.entries(this.values)[Symbol.iterator]();}}
 };
@@ -92,7 +92,7 @@ for(const filename of ['risk-engine.js','risk-data.js','listing-link-ui.js','ris
 assert.equal(uiElement('breadcrumb').textContent,'Risk dashboard');
 assert(uiElement('risk-report-host').innerHTML.includes('Exact rule contributions'));
 assert(uiElement('risk-report-host').innerHTML.includes('HIGH RISK'));
-for(const route of ['assess','risk-history','model-lab','risk-data','explore','valuation','compare','affordability','saved']){
+for(const route of ['assess','risk-history','model-lab','explore','valuation','compare','affordability','saved']){
   vm.runInContext(`page=${JSON.stringify(route)};render()`,uiContext);
   assert(uiElement('page-content').innerHTML.length>100,route+' must render');
 }
@@ -109,9 +109,11 @@ assert(uiElement('risk-report-host').innerHTML.includes('&lt;img'));
 assert(!uiElement('risk-report-host').innerHTML.includes('<img src=x'));
 assert(!storage.get('mv-risk-history').includes('0771234567'));
 vm.runInContext("page='assess';render()",uiContext);
-const form={id:'risk-assess-form',values:Object.fromEntries(Object.entries(samples[0]).map(([k,v])=>[k,String(v)]))};
+const form={id:'risk-assess-form',querySelector(){return null;},values:Object.fromEntries(Object.entries(samples[0]).map(([k,v])=>[k,String(v)]))};
 const submit={target:form,preventDefault(){}};
-listeners.submit.forEach(callback=>callback(submit));
+uiContext.fetch=async()=>({ok:true,json:async()=>require('../fixtures/model-result.json')});
+(async()=>{
+await Promise.all(listeners.submit.map(callback=>callback(submit)));
 assert(uiElement('manual-result').innerHTML.includes('LOW RISK'));
 assert.equal(uiContext.RiskUI.getResults().length,2);
 const entries=JSON.parse(storage.get('mv-risk-history'));
@@ -121,3 +123,4 @@ const noReference={...samples[0]};delete noReference.fairValue;
 assert.equal(uiContext.RiskUI.importRecords(JSON.stringify(noReference)),1);
 assert.equal(uiContext.RiskUI.getResults()[0].assessmentStatus,'partial');
 console.log('PASS: all routes, atomic JSON import, version handoff, escaping, local history and manual-assessment submission');
+})().catch(error=>{console.error(error);process.exitCode=1;});

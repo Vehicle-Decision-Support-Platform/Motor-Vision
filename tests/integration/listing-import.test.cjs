@@ -5,7 +5,8 @@ const {PassThrough}=require('node:stream');
 const fs=require('node:fs');
 const vm=require('node:vm');
 const {validateListingUrl,isPublicIPv4,fetchHtml,parseListing,ListingError}=require('../../backend/services/listing-import');
-const {createServer}=require('../../backend/server');
+const {createServer:createApiServer}=require('../../backend/server');
+const {createServer:createFrontendServer}=require('../../frontend/server');
 const adUrl='https://ikman.lk/en/ad/suzuki-wagon-r-fx-safety-2025-for-sale-colombo-212';
 const riyaUrl='https://riyasewana.com/buy/toyota-aqua-sale-kandy-9871747';
 // Invented fixture with the same published field shape; no live seller/contact data.
@@ -54,22 +55,23 @@ async function backend(){
   await assert.rejects(fetchHtml(adUrl,{lookup,request:transport({headers:{'content-type':'application/json'}})}),/advertisement page/);
   await assert.rejects(fetchHtml(adUrl,{lookup,request:transport({body:'x'.repeat(200)}),maxBytes:100}),/too large/);
   await assert.rejects(fetchHtml(adUrl,{lookup,request:transport({hang:true}),timeoutMs:25}),/too long/);
-  const server=createServer({preview:async value=>{validateListingUrl(value);return preview;}});
-  await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
-  const base='http://127.0.0.1:'+server.address().port;
+  const auth={userFromRequest:async()=>{throw new Error('Guest listing import must not depend on account availability.');},store:{name:'test store'}};
+  const server=createApiServer({preview:async value=>{validateListingUrl(value);return preview;},auth}),website=createFrontendServer();
+  await Promise.all([new Promise(resolve=>server.listen(0,'127.0.0.1',resolve)),new Promise(resolve=>website.listen(0,'127.0.0.1',resolve))]);
+  const base='http://127.0.0.1:'+server.address().port,webBase='http://127.0.0.1:'+website.address().port;
   const post=(body,headers={})=>fetch(base+'/api/listings/preview',{method:'POST',headers:{'Content-Type':'application/json',...headers},body});
   try{
-    assert.equal((await fetch(base)).status,200);
-    assert.equal((await fetch(base+'/js/valuation-ui.js')).status,200);
-    assert.equal((await fetch(base+'/css/valuation.css')).status,200);
-    for(const file of ['.git/config','backend/server.js','backend/services/listing-import.js','package.json','node_modules/x','%E0%A4%A'])assert([400,404].includes((await fetch(base+'/'+file)).status));
+    assert.equal((await fetch(webBase)).status,200);
+    assert.equal((await fetch(webBase+'/js/valuation-ui.js')).status,200);
+    assert.equal((await fetch(webBase+'/css/valuation.css')).status,200);
+    for(const file of ['.git/config','backend/server.js','backend/services/listing-import.js','package.json','node_modules/x','%E0%A4%A'])assert([400,404].includes((await fetch(webBase+'/'+file)).status));
     assert.equal((await fetch(base+'/api/listings/preview')).status,405);
     const response=await post(JSON.stringify({url:adUrl}));assert.equal(response.status,200);assert.equal((await response.json()).listing.mileage,3000);
     assert.equal((await post('{')).status,400);assert.equal((await post(JSON.stringify({url:'https://evil.test'}))).status,400);
     assert.equal((await post(JSON.stringify({url:adUrl}),{Origin:'https://evil.test'})).status,403);
     assert.equal((await post('x'.repeat(5000))).status,413);
     assert.equal((await post('{}',{'Content-Type':'text/plain'})).status,415);
-  }finally{await new Promise(resolve=>server.close(resolve));}
+  }finally{await Promise.all([new Promise(resolve=>server.close(resolve)),new Promise(resolve=>website.close(resolve))]);}
   console.log('PASS: listing parsing, missing mileage, contact filtering, URL/DNS/redirect guards, fetch limits and HTTP preview API');
 }
 async function frontend(){
@@ -77,7 +79,7 @@ async function frontend(){
   const element=id=>elements[id]||={id,innerHTML:'',textContent:'',value:'',classList:{add(){},remove(){},toggle(){}},setAttribute(){},removeAttribute(){},scrollIntoView(){},querySelector(){return null;},closest(){return {classList:{add(){},remove(){}}};},focus(){},elements:{namedItem:key=>element('field-'+key)}};
   const document={getElementById:element,querySelector:()=>null,querySelectorAll:()=>[],addEventListener(type,handler){(listeners[type]||=[]).push(handler);}};
   let response={ok:true,status:200,headers:{get:()=> 'application/json'},json:async()=>preview};
-  const context={console,document,URL,AbortController,setTimeout,clearTimeout,location:{hash:''},history:{replaceState(){}},addEventListener(){},scrollTo(){},localStorage:{getItem:key=>storage.get(key)||null,setItem:(key,value)=>storage.set(key,value)},FormData:class{constructor(form){this.values=form.values;}[Symbol.iterator](){return Object.entries(this.values)[Symbol.iterator]();}},fetch:async(_url,options)=>{assert.equal(JSON.parse(options.body).url,adUrl);return response;}};
+  const context={console,document,URL,AbortController,setTimeout,clearTimeout,location:{hash:'#risk'},history:{replaceState(){}},addEventListener(){},scrollTo(){},localStorage:{getItem:key=>storage.get(key)||null,setItem:(key,value)=>storage.set(key,value)},FormData:class{constructor(form){this.values=form.values;}[Symbol.iterator](){return Object.entries(this.values)[Symbol.iterator]();}},fetch:async(_url,options)=>{if(_url==='/api/risk/assess')return {ok:true,json:async()=>require('../fixtures/model-result.json')};assert.equal(JSON.parse(options.body).url,adUrl);return response;}};
   context.window=context;vm.createContext(context);
   for(const file of ['risk-engine.js','risk-data.js','listing-link-ui.js','risk-ui.js','price-engine.js','valuation-ui.js','app.js'])vm.runInContext(fs.readFileSync(__dirname+'/../../frontend/js/'+file,'utf8'),context);
   assert(element('page-content').innerHTML.includes('listing-link-form'));
@@ -88,24 +90,24 @@ async function frontend(){
   assert(!/\brequired\b/.test(fairValueInput),'An unknown fair value must not trigger the browser required-field popup.');
   assert(fairValueInput.includes('Leave blank if unknown'));
   assert.equal(element('field-mileage').value,'3000');assert.equal(element('field-price').value,'7650000');assert.equal(element('field-fairValue').value,'');
-  const assessment={id:'risk-assess-form',values:{...preview.listing,fairValue:'8000000'}};
-  listeners.submit[1]({target:assessment,preventDefault(){}});
+  const assessment={id:'risk-assess-form',querySelector(){return null;},querySelector(){return null;},values:{...preview.listing,fairValue:'8000000'}};
+  await listeners.submit[1]({target:assessment,preventDefault(){}});
   assert(element('manual-result').innerHTML.includes('View source ad'));
-  const result=context.RiskUI.getResults()[0];assert.equal(result.provenance.sourceUrl,adUrl);assert.equal(result.mode,'rule_based_baseline');assert.equal(result.datasetVersion,'url-import-2026-10-21');
+  const result=context.RiskUI.getResults()[0];assert.equal(result.provenance.sourceUrl,adUrl);assert.equal(result.mode,'trained_lightgbm');assert.equal(result.datasetVersion,'url-import-2026-10-21');
   assert.equal(result.assessmentStatus,'complete');
-  listeners.submit[1]({target:{...assessment,values:{...assessment.values,fairValue:'',priceStd:'650000'}},preventDefault(){}});
+  await listeners.submit[1]({target:{...assessment,values:{...assessment.values,fairValue:'',priceStd:'650000'}},preventDefault(){}});
   const partial=context.RiskUI.getResults()[0];
-  assert.equal(partial.assessmentStatus,'partial');assert.equal(partial.features.priceDeviation,null);assert.equal(partial.features.priceZ,null);
-  assert(element('manual-result').innerHTML.includes('Partial assessment: price not checked'));
-  assert(element('manual-result').innerHTML.includes('Not assessed'));
+  assert.equal(partial.assessmentStatus,'complete');assert.equal(partial.features.engine_cc,1500);
+  assert(element('manual-result').innerHTML.includes('SHAP explanations'));
+  assert(element('manual-result').innerHTML.includes('LIME local explanation'));
   assert(!element('manual-result').innerHTML.includes('Price is near its reference'));
   assert(!element('manual-result').innerHTML.includes('NaN'));
-  assert.equal(JSON.parse(storage.get('mv-risk-history'))[0].result.assessmentStatus,'partial');
+  assert.equal(JSON.parse(storage.get('mv-risk-history'))[0].result.assessmentStatus,'complete');
   listeners.click[0]({target:{closest:()=>({dataset:{riskTab:'features',reportContext:'manual'}})}});
-  assert(element('manual-result').innerHTML.includes('Reference fair value: <strong>Not supplied</strong>'));
+  assert(element('manual-result').innerHTML.includes('Estimated market value'));
   assert(!element('manual-result').innerHTML.includes('NaN'));
-  context.navigate('risk');assert(element('risk-items').innerHTML.includes('PARTIAL'));
-  context.navigate('risk-history');assert(element('page-content').innerHTML.includes('PARTIAL'));
+  context.navigate('risk');assert(element('risk-items').innerHTML.includes('probability'));
+  context.navigate('risk-history');assert(element('page-content').innerHTML.includes('LOW'));
   assert(!storage.get('mv-risk-history').includes('0771234567'));
   assert.throws(()=>context.RiskUI.loadFromLink({...preview,sourceUrl:'javascript:alert(1)'}),/invalid listing preview/);
   response={ok:false,headers:{get:()=> 'application/json'},json:async()=>({error:'The listing site blocked this request.'})};
@@ -115,7 +117,7 @@ async function frontend(){
   await listeners.submit[0]({target:form,preventDefault(){}});assert(element('listing-link-status').innerHTML.includes('Restart'));
   const count=context.RiskUI.getResults().length;
   listeners.reset[0]({target:{id:'risk-assess-form'}});
-  listeners.submit[1]({target:{...assessment,values:{...assessment.values,fairValue:'0'}},preventDefault(){}});
+  await listeners.submit[1]({target:{...assessment,values:{...assessment.values,fairValue:'0'}},preventDefault(){}});
   assert.equal(context.RiskUI.getResults().length,count);assert(element('risk-form-error').innerHTML.includes('fairValue'));
   // A late response must not pull the user back after they leave the queue.
   let finish;context.fetch=()=>new Promise(resolve=>{finish=resolve;});
