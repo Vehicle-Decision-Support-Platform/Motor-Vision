@@ -14,6 +14,7 @@
     "test:launcher": "node tests/integration/launcher.test.cjs",
     "test:about": "node tests/frontend/about.test.cjs",
     "test:risk-model": "node tests/integration/risk-model.test.cjs",
-    "test": "node tests/frontend/smoke-test.cjs && node tests/frontend/about.test.cjs && node tests/integration/listing-import.test.cjs && node tests/integration/risk-model.test.cjs"
+    "test:price-model": "node tests/integration/price-model.test.cjs",
+    "test": "node tests/frontend/smoke-test.cjs && node tests/frontend/about.test.cjs && node tests/integration/listing-import.test.cjs && node tests/integration/risk-model.test.cjs && node tests/integration/price-model.test.cjs"
   }
 }
