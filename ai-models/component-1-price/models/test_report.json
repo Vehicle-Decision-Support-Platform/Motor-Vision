@@ -1,0 +1,18 @@
+{
+    "best_global_model": "Random Forest",
+    "global_metrics": {
+        "MAE": 615895.5993477545,
+        "RMSE": 2043105.4825192024,
+        "R2": 0.8367300368963357
+    },
+    "fusion_metrics": {
+        "MAE": 599389.581913115,
+        "RMSE": 2037687.2182535212,
+        "R2": 0.837594864280984
+    },
+    "test_records": 1492,
+    "fusion_eligible": 1033,
+    "large_disagreements": 144,
+    "mae_improvement_lkr": 16506.017434639507,
+    "test_evaluated": true
+}
