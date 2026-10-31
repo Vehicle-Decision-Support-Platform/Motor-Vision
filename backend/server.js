@@ -3,6 +3,8 @@
 const http = require('node:http');
 const path = require('node:path');
 require('dotenv').config({path:path.join(__dirname,'..','.env'),quiet:true});
+// Optional: Node's resolver can fall back to 127.0.0.1 on Windows with VPN/VMware adapters, which breaks mongodb+srv:// lookups.
+if(process.env.DNS_SERVERS)try{require('node:dns').setServers(process.env.DNS_SERVERS.split(',').map(s=>s.trim()).filter(Boolean));}catch(error){console.error('Ignoring invalid DNS_SERVERS:',error.message);}
 const {previewListing,ListingError} = require('./services/listing-import');
 const {createAuthService,createUserStore} = require('./services/auth');
 const {createMailer} = require('./services/mailer');
