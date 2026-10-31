@@ -8,6 +8,7 @@ const {createAuthService,createUserStore} = require('./services/auth');
 const {createMailer} = require('./services/mailer');
 const defaultAuth=createAuthService({store:createUserStore(),sendResetEmail:createMailer()});
 const {assessRisk}=require('./services/risk-model');
+const {predictPrice,priceOptions}=require('./services/price-model');
 function json(res,status,value){res.writeHead(status,{'Content-Type':'application/json; charset=utf-8'});res.end(JSON.stringify(value));}
 function readBody(req,maxSize=4096){return new Promise((resolve,reject)=>{
   let size=0,text='';req.on('data',chunk=>{size+=chunk.length;if(size>maxSize){reject(new ListingError('Request is too large.',413));return;}text+=chunk;});
@@ -26,6 +27,18 @@ function createServer({preview=previewListing,auth=defaultAuth}={}){
       const host=req.headers.host;
       if(!/^(localhost|127\.0\.0\.1)(:\d+)?$/.test(host||'')||req.headers.origin&&req.headers.origin!==`http://${host}`||req.headers['sec-fetch-site']==='cross-site')return json(res,403,{error:'Use the local Motor Vision application.'});
       try{const listing=await readBody(req,16384);if(!listing||Array.isArray(listing)||typeof listing!=='object')return json(res,400,{error:'Send vehicle details.'});return json(res,200,await assessRisk(listing));}
+      catch(error){return json(res,error instanceof ListingError?error.status:503,{error:error.message});}
+    }
+    if(pathname==='/api/price/options'){
+      if(req.method!=='GET')return json(res,405,{error:'Use GET.'});
+      try{return json(res,200,await priceOptions());}catch(error){return json(res,503,{error:error.message});}
+    }
+    if(pathname==='/api/price/predict'){
+      if(req.method!=='POST')return json(res,405,{error:'Use POST.'});
+      if(!/^application\/json(?:;|$)/i.test(req.headers['content-type']||''))return json(res,415,{error:'Send application/json.'});
+      const host=req.headers.host;
+      if(!/^(localhost|127\.0\.0\.1)(:\d+)?$/.test(host||'')||req.headers.origin&&req.headers.origin!==`http://${host}`||req.headers['sec-fetch-site']==='cross-site')return json(res,403,{error:'Use the local Motor Vision application.'});
+      try{const listing=await readBody(req,16384);if(!listing||Array.isArray(listing)||typeof listing!=='object')return json(res,400,{error:'Send vehicle details.'});return json(res,200,await predictPrice(listing));}
       catch(error){return json(res,error instanceof ListingError?error.status:503,{error:error.message});}
     }
     if(pathname==='/api/listings/preview'){
