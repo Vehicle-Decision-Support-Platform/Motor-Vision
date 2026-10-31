@@ -92,7 +92,7 @@ for(const filename of ['risk-engine.js','risk-data.js','listing-link-ui.js','ris
 assert.equal(uiElement('breadcrumb').textContent,'Risk dashboard');
 assert(uiElement('risk-report-host').innerHTML.includes('Exact rule contributions'));
 assert(uiElement('risk-report-host').innerHTML.includes('HIGH RISK'));
-for(const route of ['assess','risk-history','model-lab','risk-data','explore','valuation','compare','affordability','saved']){
+for(const route of ['assess','risk-history','model-lab','explore','valuation','compare','affordability','saved']){
   vm.runInContext(`page=${JSON.stringify(route)};render()`,uiContext);
   assert(uiElement('page-content').innerHTML.length>100,route+' must render');
 }

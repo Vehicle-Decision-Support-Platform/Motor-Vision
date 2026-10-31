@@ -57,19 +57,24 @@ Requires Node.js 20 or newer. The backend API and the website are separate Node 
 | Backend API | `backend/` | http://localhost:4000 (`API_PORT`) |
 | Website | `frontend/` | http://localhost:3000 (`FRONTEND_PORT`) |
 
-Install and run each one in its own terminal:
+Install dependencies once from the project root:
 
 ```sh
 npm --prefix backend install
-npm run dev:backend     # API on :4000
+npm --prefix frontend install
 ```
+
+Start both listeners with one command from the project root (or outer workspace):
 
 ```sh
-npm --prefix frontend install
-npm run dev:frontend    # website on :3000
+npm run dev
 ```
 
-`npm start` runs a server without watch mode. Open http://localhost:3000 and stop each server with **Ctrl+C**. Both read the shared `.env` in the project root.
+Open http://localhost:3000. One process owns the website on port 3000 and API on
+port 4000. **Ctrl+C** stops both; Node watch restarts them together when imported
+server code changes. `npm start` runs both without watching. Both read the shared
+`.env`. Stop any previously started separate servers before using the combined
+command. The separate `dev:backend` and `dev:frontend` commands remain available.
 
 The website server serves `frontend/` and forwards every `/api/*` request to `API_URL` (default http://localhost:4000), keeping the browser's host. The browser therefore talks to one origin: session cookies, the same-origin checks, the OTP reset and the OAuth redirects work without CORS. Keep `APP_URL` set to the website address (http://localhost:3000). If the API is not running, API calls return a message saying so. `GET /api/health` reports whether the API is up and which account store it uses.
 
