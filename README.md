@@ -5,7 +5,7 @@
 Manual assessments and reviewed ad-link assessments now call the supplied trained
 LightGBM bundle through the Node backend and a persistent Python worker. Reports
 include SHAP, LIME and the Logistic Regression comparison. Start with `npm run dev`.
-See [Python runtime and model integration](ml-api/README.md) for setup, recovered
+See [Component 3 Python runtime and model integration](ml-api/component-3-risk/README.md) for setup, recovered
 Python 3.13 runtime requirements, input assumptions and verification commands.
 The synthetic sample queue and JSON batch imports still use the rule baseline.
 Earlier prototype descriptions below refer to that baseline unless stated otherwise.
@@ -33,14 +33,15 @@ Motor-Vision/
 │   └── assets/                  # Images and icons
 ├── backend/
 │   ├── server.js                # Backend API server (port 4000)
-│   ├── services/                # auth, mailer, listing-import
+│   ├── services/                # auth, mailer, listing-import, risk model
 │   ├── routes/ controllers/ middleware/ config/ utils/
 ├── ai-models/
-│   ├── component-1-price/{models,training}/
 │   ├── component-2-recommendation/{models,training}/
 │   ├── component-3-risk/{models,training}/
 │   └── component-4-affordability/{models,training}/
-├── ml-api/{routers,services,schemas}/
+├── ml-api/
+│   ├── component-3-risk/        # Risk worker, runtime, dependencies and setup
+│   └── main.py                  # Future typed Python API entry point
 ├── datasets/{raw,processed}/
 └── docs/
 ```
@@ -88,7 +89,7 @@ Browser frontend → Node REST API → Python FastAPI ML service → versioned m
                  ← validated JSON ← versioned prediction/explanation ←
 ```
 
-The Node backend should remain the public application boundary and validate/authenticate requests. The future Python service should load component-specific artifacts, validate typed schemas, and return versioned predictions plus explanation metadata. Configure its internal URL with `ML_API_URL`; do not expose model files directly to the browser. `ml-api/main.py` and `ml-api/requirements.txt` are intentionally non-operational until a real inference contract and trained artifact exist.
+The Node backend should remain the public application boundary and validate/authenticate requests. The future Python service should load component-specific artifacts, validate typed schemas, and return versioned predictions plus explanation metadata. Configure its internal URL with `ML_API_URL`; do not expose model files directly to the browser. `ml-api/main.py` remains a generic future entry point; Component 3 keeps its active worker and dependencies inside `ml-api/component-3-risk/`.
 
 ## Authentication and password reset
 

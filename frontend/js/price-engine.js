@@ -1,9 +1,8 @@
-/* Price-component contracts, demo behavior and comparison of trained-model predictions from /api/price/predict. */
+/* Browser-only price-component contracts, demo behavior and supplied-result comparison. */
 (function(root){
   'use strict';
   const VERSION='price-0.1.0',YEAR=2026;
   const MODELS=Object.freeze([{id:'xgboost',name:'XGBoost'},{id:'random_forest',name:'Random Forest'},{id:'lightgbm',name:'LightGBM'}]);
-  const STATUS={'FAIR PRICE':'FAIRLY_PRICED','POTENTIALLY GOOD DEAL':'UNDERPRICED','POTENTIALLY OVERPRICED':'OVERPRICED'};
   const featureKeys=['make','model','year','mileage','fuel','transmission','engine','bodyType','condition','location','colour'];
   const normalize=value=>String(value??'').normalize('NFKC').trim().toLowerCase().replace(/\s+/g,' ');
   const nameKey=value=>normalize(value).replace(/[^a-z0-9]/g,'');
@@ -72,10 +71,10 @@
     report.tied=ranked.slice(1).some(m=>m.metrics.rmse===ranked[0].metrics.rmse&&m.metrics.mae===ranked[0].metrics.mae&&m.metrics.r2===ranked[0].metrics.r2);
     return report;
   }
-  function evaluate(value,{catalog=[],mode='demo',bundle=null,prediction=null,thresholdPercent}={}){
+  function evaluate(value,{catalog=[],mode='demo',bundle=null,thresholdPercent}={}){
     const start=typeof performance!=='undefined'?performance.now():Date.now();
     const listing=prepare(value),isDemo=mode==='demo';
-    if(!['demo','model','ai'].includes(mode))throw Error('Choose demo mode, the trained model or supplied model outputs.');
+    if(!['demo','model'].includes(mode))throw Error('Choose demo mode or supplied model outputs.');
     let fairValue,modelVersion,datasetVersion,preprocessingVersion,modelName,reference=null,modelPredictions=[],thresholdEvidence='Illustrative preview tolerance; not calibrated from validation errors.',thresholdStatus='demo_unvalidated',splitId=null;
     const age=Math.max(1,YEAR-listing.year),features={vehicleAge:age,mileagePerYear:listing.mileage/age};
     if(isDemo){
@@ -89,14 +88,6 @@
       features.conditionAssumedNeutral=!Object.hasOwn(conditionFactors,normalize(listing.condition));
       fairValue=reference.price*features.yearFactor*features.mileageFactor*features.conditionFactor;
       modelVersion='demo-formula-1';datasetVersion='synthetic-price-references-1';preprocessingVersion='price-features-1';modelName='Demo formula';
-    }else if(mode==='ai'){
-      // Result of vehicle_hybrid_system core.predict_vehicle, returned unchanged by /api/price/predict.
-      if(!prediction||!positive(prediction.final_price)||!STATUS[prediction.status])throw Error('The trained price model did not return a prediction.');
-      thresholdPercent=5;fairValue=prediction.final_price;modelPredictions=prediction.models||[];splitId='fixed-train-validation-test';
-      modelName=prediction.fusion_applied?`${prediction.best_global_model} + similar-vehicle fusion`:prediction.best_global_model;modelVersion='vehicle_hybrid_system';
-      datasetVersion='Price_Prediction_Cleaned';preprocessingVersion='vehicle_hybrid_system core.py';
-      features.prediction={globalPrice:prediction.global_price,fusionApplied:prediction.fusion_applied,globalWeight:prediction.globalWeight,similar:{price:prediction.similar_price,matches:prediction.similar_matches,reliability:prediction.similar_reliability},confidenceWarning:prediction.confidence_warning,testMetrics:prediction.testMetrics,status:prediction.status};
-      thresholdEvidence='5% fair-price band is the trained component\'s preliminary business rule, applied after prediction.';thresholdStatus='model_business_rule';
     }else{
       const report=validateBundle(bundle);
       if(thresholdPercent===undefined)thresholdPercent=report.threshold.percent;
@@ -107,13 +98,12 @@
       thresholdEvidence=report.threshold.evidence;thresholdStatus=thresholdPercent===report.threshold.percent?'imported_error_analysis':'custom_unvalidated';
     }
     const comparison=compare(listing.price,fairValue,thresholdPercent);
-    if(mode==='ai')Object.assign(comparison,{difference:prediction.difference,differencePercent:prediction.difference_percentage,classification:STATUS[prediction.status]});
     const end=typeof performance!=='undefined'?performance.now():Date.now();
-    return {schemaVersion:'price-result-1',componentVersion:VERSION,currency:'LKR',listing,isDemo,isTrained:mode==='ai',
-      mode:isDemo?'demo_formula':mode==='ai'?'trained_model_api':'supplied_model_outputs',modelName,modelVersion,datasetVersion,preprocessingVersion,splitId,
+    return {schemaVersion:'price-result-1',componentVersion:VERSION,currency:'LKR',listing,isDemo,isTrained:false,
+      mode:isDemo?'demo_formula':'supplied_model_outputs',modelName,modelVersion,datasetVersion,preprocessingVersion,splitId,
       ...comparison,thresholdStatus,thresholdEvidence,features,reference:reference?{name:reference.name,year:reference.year,mileage:reference.km,price:reference.price,fuel:reference.fuel}:null,
-      modelPredictions,recommendation:mode==='ai'?prediction.explanation:recommendation(comparison.classification,isDemo),assessedAt:new Date().toISOString(),latencyMs:Math.round((end-start)*100)/100,
-      limitations:mode==='ai'?['Estimated from historical seller asking prices, not verified completed sale prices.','Condition, documents, accident history and current market changes may affect actual value.','The classification band is a business rule, not a confidence interval.',...(prediction.confidence_warning?['The global model and similar listings disagree strongly; treat this estimate cautiously.']:[])]:isDemo?['Synthetic price reference; not a trained AI prediction or current market valuation.','The demo adjusts year, mileage and selected condition only; fuel, transmission, engine, body and location are recorded for model integration.','The classification band is a configurable tolerance, not a confidence interval.']:
+      modelPredictions,recommendation:recommendation(comparison.classification,isDemo),assessedAt:new Date().toISOString(),latencyMs:Math.round((end-start)*100)/100,
+      limitations:isDemo?['Synthetic price reference; not a trained AI prediction or current market valuation.','The demo adjusts year, mileage and selected condition only; fuel, transmission, engine, body and location are recorded for model integration.','The classification band is a configurable tolerance, not a confidence interval.']:
         ['Predictions and validation metrics were supplied externally; no training or inference was run in this browser.','Dataset split quality and reported metrics have not been independently verified.','The classification band is not a prediction or confidence interval.']};
   }
   function template(listing){return {schemaVersion:'price-model-bundle-1',currency:'LKR',vehicle:prepare(listing),datasetVersion:'your-dataset-version',preprocessingVersion:'your-preprocessing-version',splitId:'your-validation-split-id',evaluationSplit:'validation',sampleSize:null,threshold:{percent:5,evidence:'Replace with evidence from validation prediction-error analysis.'},models:MODELS.map(m=>({id:m.id,modelVersion:'your-trained-model-version',metrics:{r2:null,rmse:null,mae:null},predictedPrice:null}))};}

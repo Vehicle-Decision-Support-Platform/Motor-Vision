@@ -1,6 +1,6 @@
 pandas>=2.0,<3
 numpy>=1.24,<3
-scikit-learn>=1.4,<2
+scikit-learn==1.9.1
 lightgbm>=4.0,<5
 shap>=0.45,<1
 lime==0.2.0.1

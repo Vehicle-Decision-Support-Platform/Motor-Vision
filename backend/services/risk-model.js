@@ -12,7 +12,7 @@ function stop(error){
 function start(){
   const conda=path.join(process.env.USERPROFILE||'', 'anaconda3','python.exe');
   const python=process.env.RISK_PYTHON||(fs.existsSync(conda)?conda:'python');
-  const child=spawn(python,['-u',path.join(__dirname,'../../ml-api/risk_worker.py')],{windowsHide:true,stdio:['pipe','pipe','pipe']});
+  const child=spawn(python,['-u',path.join(__dirname,'../../ml-api/component-3-risk/worker.py')],{windowsHide:true,stdio:['pipe','pipe','pipe']});
   worker=child;
   child.stderr.on('data',data=>process.stderr.write(data));
   readline.createInterface({input:child.stdout}).on('line',line=>{

@@ -8,12 +8,19 @@ import re
 from pathlib import Path
 import sys
 import time
+import warnings
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 if sys.version_info[:2] != (3, 13):
     raise RuntimeError('Recovered inference module requires Python 3.13. Set RISK_PYTHON to your Anaconda Python 3.13 executable.')
 os.environ.setdefault('LOKY_MAX_CPU_COUNT', '4')
-sys.path.insert(0, str(Path(__file__).parent / 'risk_runtime'))
+warnings.filterwarnings(
+    'ignore',
+    message=r'LightGBM binary classifier with TreeExplainer shap values output has changed.*',
+    category=UserWarning,
+    module=r'shap\.explainers\._tree',
+)
+sys.path.insert(0, str(Path(__file__).parent / 'runtime'))
 with contextlib.redirect_stdout(sys.stderr):
     import core
     import joblib
